@@ -81,8 +81,43 @@
   --wrap: 72rem;
   --measure: 40rem;
   --header-h: 4.5rem;
+  --header-bg: hsl(32 18% 7% / 0.88);
+  --header-line: hsl(39 30% 28%);
+  --input-bg: hsl(32 16% 9%);
+  --map-chrome-bg: hsl(32 18% 7% / 0.88);
+  --map-chrome-border: hsl(39 30% 28%);
+  --map-empty-from: hsl(32 16% 10%);
+  --map-empty-to: hsl(32 18% 7%);
   --lb-accent: var(--accent-on-dark);
   --lb-muted: hsl(215 12% 70%);
+}
+
+:root[data-theme="light"] {
+  --bg: hsl(38 32% 96%);
+  --bg-elev: hsl(38 40% 99%);
+  --ink: hsl(32 22% 14%);
+  --ink-muted: hsl(32 12% 32%);
+  --line: hsl(34 18% 80%);
+  --accent: hsl(32 42% 32%);
+  --accent-bright: hsl(32 52% 26%);
+  --accent-on-dark: hsl(32 42% 32%);
+  --gold: hsl(32 48% 36%);
+  --gold-on-dark: hsl(32 48% 36%);
+  --on-dark: hsl(32 22% 14%);
+  --dark: hsl(38 24% 92%);
+  --btn-ink: hsl(38 40% 98%);
+  --sold: hsl(35 12% 38%);
+  --offer: hsl(28 72% 34%);
+  --danger: hsl(8 70% 36%);
+  --shadow: 0 20px 48px hsl(32 24% 28% / 0.12);
+  --header-bg: hsl(38 32% 96% / 0.88);
+  --header-line: hsl(34 18% 80%);
+  --input-bg: hsl(38 40% 99%);
+  --map-chrome-bg: hsl(38 32% 96% / 0.92);
+  --map-chrome-border: hsl(34 18% 80%);
+  --map-empty-from: hsl(38 28% 94%);
+  --map-empty-to: hsl(38 32% 96%);
+  --lb-muted: hsl(215 14% 38%);
 }
 
 *,
@@ -93,6 +128,11 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
 }
 
 body {
@@ -199,9 +239,9 @@ p {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: hsl(32 18% 7% / 0.88);
+  background: var(--header-bg);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid hsl(39 30% 28%);
+  border-bottom: 1px solid var(--header-line);
 }
 
 .topbar {
@@ -230,8 +270,39 @@ p {
   color: var(--ink);
 }
 
-.nav-toggle {
+.theme-toggle {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: var(--gold);
+}
+
+.theme-icon-moon {
+  display: none;
+}
+
+html[data-theme="light"] .theme-icon-sun {
+  display: none;
+}
+
+html[data-theme="light"] .theme-icon-moon {
+  display: block;
+}
+
+.nav-toggle {
   background: transparent;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -291,6 +362,12 @@ p {
 
   .btn.header-cta {
     display: inline-flex;
+    order: 3;
+  }
+
+  .theme-toggle {
+    margin-left: 0;
+    order: 4;
   }
 }
 
@@ -438,7 +515,7 @@ button.btn {
 .map-hint {
   margin: 0;
   padding: 0.55rem 0.8rem;
-  background: hsl(32 18% 7% / 0.88);
+  background: var(--map-chrome-bg);
   color: var(--ink);
   border: 1px solid var(--line);
   font-size: 0.72rem;
@@ -455,8 +532,8 @@ button.btn {
   min-height: 44px;
   min-width: 44px;
   padding: 0.55rem 0.9rem;
-  border: 1px solid hsl(39 30% 28%);
-  background: hsl(32 18% 7% / 0.92);
+  border: 1px solid var(--map-chrome-border);
+  background: var(--map-chrome-bg);
   color: var(--gold);
   font: 600 0.72rem var(--font-body);
   letter-spacing: 0.12em;
@@ -590,7 +667,7 @@ body.is-map-full .consent-banner {
   justify-content: center;
   padding: var(--space-6);
   background:
-    linear-gradient(180deg, hsl(32 16% 10%), hsl(32 18% 7%));
+    linear-gradient(180deg, var(--map-empty-from), var(--map-empty-to));
 }
 
 .map-empty[hidden],
@@ -865,7 +942,7 @@ textarea {
   padding: 0.65rem 0.75rem;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: hsl(32 16% 9%);
+  background: var(--input-bg);
   color: var(--ink);
   min-height: 44px;
 }
@@ -911,7 +988,7 @@ textarea {
   color: var(--on-dark);
   padding: var(--space-7) 0 var(--space-5);
   margin-top: var(--space-8);
-  border-top: 1px solid hsl(39 30% 28%);
+  border-top: 1px solid var(--header-line);
 }
 
 .site-footer :not(.eyebrow) {
@@ -1167,6 +1244,16 @@ textarea {
   flex: 0 0 auto;
   width: 40px !important;
   height: 40px !important;
+}
+
+.gmnoprint.gm-style-mtc {
+  z-index: 5 !important;
+}
+
+.gmnoprint.gm-style-mtc ul[role="menu"] {
+  top: auto !important;
+  bottom: 100% !important;
+  border-radius: 2px 2px 0 0;
 }
 
 .property-popup .form-status.is-ok {

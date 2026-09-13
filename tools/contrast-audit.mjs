@@ -46,6 +46,12 @@ const pairs = [
   ["champagne on bg", [39, 42, 68], [32, 18, 7], 4.5],
   ["ink on elev", [38, 35, 93], [32, 14, 11], 4.5],
   ["btn ink on gold", [32, 18, 8], [39, 48, 62], 4.5],
+  ["light ink on bg", [32, 22, 14], [38, 32, 96], 4.5],
+  ["light muted on bg", [32, 12, 32], [38, 32, 96], 4.5],
+  ["light accent on bg", [32, 42, 32], [38, 32, 96], 4.5],
+  ["light gold on bg", [32, 48, 36], [38, 32, 96], 4.5],
+  ["light ink on elev", [32, 22, 14], [38, 40, 99], 4.5],
+  ["light btn on gold", [38, 40, 98], [32, 48, 36], 4.5],
 ];
 
 let failed = 0;

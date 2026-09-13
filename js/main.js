@@ -6,6 +6,8 @@
   const CONSENT_KEY = "prashant-consent"; // cookie choice for the properties site
   const OWNER_KEY = "prashant-owner"; // owner-traffic flag, not a public property field
   const UTM_KEY = "prashant-utm"; // campaign tags on property leads
+  const THEME_KEY = "prashant-theme"; // light or dark, remembered across visits
+  const THEME_COLOR = { dark: "#16130f", light: "#f8f6f2" };
   const HEARTBEAT_MS = 60000;
   const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
   let mapInstance = null;
@@ -1173,6 +1175,56 @@
     }
   }
 
+  function readStoredTheme() {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  }
+
+  function applyTheme(theme, persist) {
+    const next = theme === "light" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    document.documentElement.style.colorScheme = next;
+    const meta = $('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", THEME_COLOR[next]);
+    }
+    $$(".theme-toggle").forEach(function (btn) {
+      const other = next === "light" ? "dark" : "light";
+      btn.setAttribute("aria-label", "Use " + other + " theme");
+      btn.setAttribute("title", "Use " + other + " theme");
+    });
+    if (persist) {
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch (err) {}
+    }
+  }
+
+  function setupTheme() {
+    applyTheme(currentTheme(), false);
+    $$(".theme-toggle").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        applyTheme(currentTheme() === "light" ? "dark" : "light", true);
+      });
+    });
+    if (!window.matchMedia) {
+      return;
+    }
+    window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", function (event) {
+      const stored = readStoredTheme();
+      if (stored !== "light" && stored !== "dark") {
+        applyTheme(event.matches ? "light" : "dark", false);
+      }
+    });
+  }
+
   function setupNav() {
     const toggle = $(".nav-toggle");
     const nav = $("#site-nav");
@@ -2128,6 +2180,7 @@
   document.addEventListener("DOMContentLoaded", async function () {
     captureUtm();
     getSessionId();
+    setupTheme();
     setupNav();
     setupConsent();
     setupForms();

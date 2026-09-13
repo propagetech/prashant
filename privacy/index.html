@@ -6,6 +6,19 @@
   <title>Privacy notice</title>
   <meta name="description" content="What this site collects, why, how long, and how to withdraw consent.">
   <meta name="theme-color" content="#16130f">
+  <script>
+    (function () {
+      var stored = null;
+      try {
+        stored = localStorage.getItem("prashant-theme");
+      } catch (err) {}
+      var theme = stored === "light" || stored === "dark"
+        ? stored
+        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
   <link rel="icon" href="../imgs/icon.svg" type="image/svg+xml">
   <link rel="preload" href="../fonts/manrope-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fonts/Coconat-Demi.woff2" as="font" type="font/woff2" crossorigin>
@@ -16,6 +29,10 @@
 <header class="site-header">
   <div class="wrap topbar">
     <a class="brand" href="../">Properties</a>
+    <button type="button" class="theme-toggle" aria-label="Use light theme">
+      <svg class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5M12 19.5V21M4.93 4.93l1.06 1.06M18.01 18.01l1.06 1.06M3 12h1.5M19.5 12H21M4.93 19.07l1.06-1.06M18.01 5.99l1.06-1.06"/></svg>
+      <svg class="theme-icon theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z"/></svg>
+    </button>
     <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
     <nav id="site-nav" class="site-nav" aria-label="Primary">
       <ul>
