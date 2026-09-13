@@ -138,7 +138,8 @@ h1 {
 }
 
 .script-accent {
-  font-family: var(--font-script);
+  /* font-family: var(--font-script); */
+  font-family: var(--font-body);
   font-size: clamp(2.5rem, 5vw, 5.5rem);
   font-weight: 400;
   line-height: 0.9;

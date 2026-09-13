@@ -11,14 +11,14 @@ sam build
 sam deploy --stack-name prashant-backend --region ap-south-1 \
   --capabilities CAPABILITY_IAM --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset \
   --parameter-overrides \
-    AllowedOrigin=https://www.REPLACE_DOMAIN \
+    AllowedOrigin=https://prashant.propage.in \
     AdminToken=$(cat .admin-token.txt) \
     EmailsEnabled=false
 ```
 
 Omit `RecaptchaSecret=` if empty (the CLI splits on spaces and empty flags misparse). Add `SenderEmail` / `OwnerEmail` and `EmailsEnabled=true` after SES identities are verified.
 
-Copy the `ApiBaseUrl` output into `js/config.js` as `API_BASE`. Pin CORS to the live `www` origin.
+Copy the `ApiBaseUrl` output into `js/config.js` as `API_BASE`. Pin CORS to `https://prashant.propage.in`.
 
 ## Smoke
 

@@ -16,8 +16,8 @@ Parameters:
     Description: Inbox for new-lead notifications.
   AllowedOrigin:
     Type: String
-    Default: http://localhost:8080
-    Description: CORS origin for the live site (https://www.example.com).
+    Default: https://prashant.propage.in
+    Description: CORS origin for the live site.
   AdminToken:
     Type: String
     NoEcho: true
