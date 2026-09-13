@@ -1,4 +1,5 @@
-# Generate path-portable HTML pages for the Prashant microsite.
+# Generate path-portable HTML pages for the properties microsite.
+# Internal project key is prashant. Public copy says property or properties.
 from pathlib import Path
 
 ROOT = Path("/workspace")

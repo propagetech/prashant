@@ -106,7 +106,7 @@ On Bhoomojini, open the citizen sketch / tippan / RTC-sketch service if it is li
 Create one private parent (Shared Drive or a My Drive folder owned by the business). Example:
 
 ```
-Prashant Properties
+Properties
   Listings
     BLR-PLT-01
       00-index.txt

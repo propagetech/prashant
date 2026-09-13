@@ -1,11 +1,11 @@
 (function () {
   "use strict";
 
-  const cfg = window.PRASHANT || {};
-  const SESSION_KEY = "prashant-session";
-  const CONSENT_KEY = "prashant-consent";
-  const OWNER_KEY = "prashant-owner";
-  const UTM_KEY = "prashant-utm";
+  const cfg = window.PRASHANT || {}; // properties catalogue config
+  const SESSION_KEY = "prashant-session"; // first-party id for property views
+  const CONSENT_KEY = "prashant-consent"; // cookie choice for the properties site
+  const OWNER_KEY = "prashant-owner"; // owner-traffic flag, not a public property field
+  const UTM_KEY = "prashant-utm"; // campaign tags on property leads
   const HEARTBEAT_MS = 60000;
   const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
   let mapInstance = null;
@@ -579,10 +579,10 @@
       return;
     }
     mapsWaiters.push(onReady);
-    if (document.querySelector("script[data-prashant-maps]")) {
+    if (document.querySelector("script[data-prashant-maps]")) { // property map loader
       return;
     }
-    window.prashantMapsReady = function () {
+    window.prashantMapsReady = function () { // Maps ready for the properties map
       mapsWaiters.splice(0).forEach(function (fn) {
         fn();
       });
@@ -594,7 +594,7 @@
       "&callback=prashantMapsReady";
     s.async = true;
     s.defer = true;
-    s.setAttribute("data-prashant-maps", "1");
+    s.setAttribute("data-prashant-maps", "1"); // one Maps script for property pins
     s.addEventListener("error", function () {
       const fallback = $("#map-fallback");
       if (fallback) {
@@ -1754,7 +1754,7 @@
   }
 
   function tokenHeader() {
-    const token = sessionStorage.getItem("prashant-admin-token") || "";
+    const token = sessionStorage.getItem("prashant-admin-token") || ""; // admin token for property desk
     return { "x-admin-token": token };
   }
 
@@ -1845,7 +1845,7 @@
     }
     login.addEventListener("submit", async function (event) {
       event.preventDefault();
-      sessionStorage.setItem("prashant-admin-token", $("#admin-token").value);
+      sessionStorage.setItem("prashant-admin-token", $("#admin-token").value); // unlocks the properties desk
       try {
         await loadDash();
       } catch (err) {

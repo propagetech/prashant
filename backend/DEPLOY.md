@@ -1,4 +1,5 @@
-# Deploy Prashant backend (AWS SAM)
+# Deploy the properties backend (AWS SAM)
+# Internal stack name stays prashant-backend. Public copy says property or properties.
 
 Stack name: `prashant-backend`. Region: `ap-south-1`. Account used by ProPage / Motorover / Invoices: `300601068858`.
 

@@ -26,7 +26,7 @@ export async function notifyOwner(item) {
       Source: from,
       Destination: { ToAddresses: [to] },
       Message: {
-        Subject: { Data: `Prashant lead: ${item.formType} ${item.propertyId || ""}`.trim() },
+        Subject: { Data: `Property lead: ${item.formType} ${item.propertyId || ""}`.trim() }, // public noun: property, not the project key
         Body: {
           Html: { Data: `<table>${rows}</table>` },
           Text: { Data: JSON.stringify(item, null, 2) },
