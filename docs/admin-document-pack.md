@@ -1,6 +1,6 @@
 # Admin guide: collect property document previews
 
-Internal operator notes. The same copy lives on the noindex page `/admin/documents/`. Do not publish survey numbers, deeds, or Drive URLs on the public site.
+Operator notes. The same copy lives on `/documents/`. Do not publish survey numbers, deeds, or Drive URLs on listing pages.
 
 ## Purpose
 
