@@ -32,6 +32,7 @@ function publicItem(item) {
     photos: Array.isArray(item.photos) ? item.photos : [],
     pimPdf: "",
     boundaryNote: item.boundaryNote || "",
+    hidden: item.hidden === true,
   };
 }
 
@@ -43,7 +44,15 @@ export async function handler(event) {
 
   if (method === "GET") {
     const out = await client.send(new ScanCommand({ TableName: tables().properties }));
-    return ok({ items: (out.Items || []).map(publicItem) });
+    const items = (out.Items || []).map(publicItem);
+    if (!isAuthorized(event)) {
+      return ok({
+        items: items.map(function (item) {
+          return item.hidden ? { id: item.id, hidden: true } : item;
+        }),
+      });
+    }
+    return ok({ items: items });
   }
 
   if (!isAuthorized(event)) {

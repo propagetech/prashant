@@ -167,7 +167,8 @@
       });
   }
 
-  async function loadCatalog() {
+  async function loadCatalog(options) {
+    const opts = options || {};
     let fileProps = [];
     try {
       const res = await fetch(assetUrl("data/properties.json"), { cache: "no-store" });
@@ -176,9 +177,18 @@
     } catch (err) {
       catalog = { properties: [] };
     }
+    catalog.fileIds = {};
+    fileProps.forEach(function (prop) {
+      if (prop && prop.id) {
+        catalog.fileIds[prop.id] = true;
+      }
+    });
     let apiProps = [];
     try {
-      const live = await apiSend("/properties", { method: "GET" });
+      const live = await apiSend("/properties", {
+        method: "GET",
+        headers: opts.admin ? tokenHeader() : {},
+      });
       if (live && live.items) {
         apiProps = live.items;
       }
@@ -195,7 +205,13 @@
     } catch (err) {
       statusOverlay = {};
     }
-    return mergeCatalog(fileProps, apiProps);
+    const merged = mergeCatalog(fileProps, apiProps);
+    if (opts.includeHidden) {
+      return merged;
+    }
+    return merged.filter(function (prop) {
+      return !prop.hidden;
+    });
   }
 
   function renderList(properties) {
@@ -947,6 +963,7 @@
       $("#admin-prop-price").value = prop.priceGuidance || "";
       $("#admin-prop-place").value = prop.placeUrl || "";
       $("#admin-prop-note").value = prop.boundaryNote || "";
+      $("#admin-prop-hidden").checked = Boolean(prop.hidden);
       editorPoints = (prop.boundary && prop.boundary.length ? prop.boundary : []).map(function (point) {
         return { lat: Number(point.lat), lng: Number(point.lng) };
       });
@@ -955,8 +972,95 @@
         editorMap.panTo(editorPoints[0]);
         editorMap.setZoom(16);
       }
-      $("#admin-delete-prop").hidden = !liveIds[prop.id];
+      $("#admin-delete-prop").hidden = false;
     }
+
+    function resetNew() {
+      form.reset();
+      if (loadSel) {
+        loadSel.value = "";
+      }
+      editorPoints = [];
+      redrawEditor();
+      $("#admin-delete-prop").hidden = true;
+      $("#admin-prop-hidden").checked = false;
+      setStatus(true, "");
+    }
+
+    function openListing(id) {
+      const prop = (form._listings || []).find(function (row) {
+        return row.id === id;
+      });
+      if (!prop) {
+        return;
+      }
+      if (loadSel) {
+        loadSel.value = id;
+      }
+      fillForm(prop);
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function removeListing(id) {
+      const key = String(id || "").trim().toUpperCase();
+      const prop = (form._listings || []).find(function (row) {
+        return row.id === key;
+      });
+      if (!key || !prop) {
+        return false;
+      }
+      if (!window.confirm("Remove " + key + " from the public map?")) {
+        return false;
+      }
+      try {
+        const inFile = Boolean((form._fileIds || {})[key]);
+        if (liveIds[key] && !inFile) {
+          await apiSend("/properties/" + encodeURIComponent(key), {
+            method: "DELETE",
+            headers: tokenHeader(),
+          });
+          delete liveIds[key];
+        } else {
+          const saved = await apiSend(liveIds[key] ? "/properties/" + encodeURIComponent(key) : "/properties", {
+            method: liveIds[key] ? "PATCH" : "POST",
+            headers: tokenHeader(),
+            body: JSON.stringify({
+              id: key,
+              title: prop.title,
+              location: prop.location,
+              status: prop.status,
+              listingDate: prop.listingDate,
+              area: prop.area,
+              dimensions: prop.dimensions,
+              roadAccess: prop.roadAccess,
+              landType: prop.landType,
+              facing: prop.facing,
+              priceGuidance: prop.priceGuidance,
+              placeUrl: prop.placeUrl,
+              boundaryNote: prop.boundaryNote,
+              points: prop.boundary || [],
+              hidden: true,
+            }),
+          });
+          if (saved && saved.item) {
+            liveIds[key] = true;
+          }
+        }
+        setStatus(true, "Removed from the public map.");
+        if (typeof form._onSaved === "function") {
+          form._onSaved();
+        }
+        return true;
+      } catch (err) {
+        setStatus(false, "Could not remove that listing.");
+        return false;
+      }
+    }
+
+    form._fileIds = catalog.fileIds || {};
+    form._openListing = openListing;
+    form._newListing = resetNew;
+    form._removeListing = removeListing;
 
     if (loadSel) {
       const current = loadSel.value;
@@ -1074,6 +1178,7 @@
         priceGuidance: $("#admin-prop-price").value,
         placeUrl: $("#admin-prop-place").value,
         boundaryNote: $("#admin-prop-note").value,
+        hidden: $("#admin-prop-hidden").checked,
         points: points,
       };
       const existing = liveIds[payload.id];
@@ -1099,27 +1204,251 @@
 
     $("#admin-delete-prop").addEventListener("click", async function () {
       const id = ($("#admin-prop-id").value || "").trim();
-      if (!id || !liveIds[id.toUpperCase()]) {
-        return;
-      }
-      if (!window.confirm("Remove " + id + " from the live catalogue?")) {
-        return;
-      }
-      try {
-        await apiSend("/properties/" + encodeURIComponent(id), {
-          method: "DELETE",
-          headers: tokenHeader(),
-        });
-        delete liveIds[id.toUpperCase()];
-        form.reset();
-        editorPoints = [];
-        redrawEditor();
-        $("#admin-delete-prop").hidden = true;
-        setStatus(true, "Removed from the live catalogue.");
-      } catch (err) {
-        setStatus(false, "Could not remove that listing.");
+      await removeListing(id);
+      resetNew();
+    });
+  }
+
+  function listingLeads(row) {
+    return (row.enquiry || 0) + (row["document-request"] || 0) + (row["site-visit"] || 0) + (row.offer || 0);
+  }
+
+  function setupListingsDesk(catalogProps, summaryRows, fileIds) {
+    const table = $("#admin-listings");
+    const tbody = table && $("tbody", table);
+    const search = $("#admin-listing-search");
+    const sortSel = $("#admin-listing-sort");
+    if (!table || !tbody) {
+      return;
+    }
+    const metrics = {};
+    (summaryRows || []).forEach(function (row) {
+      if (row.propertyId && row.propertyId !== "unspecified") {
+        metrics[row.propertyId] = row;
       }
     });
+    const rows = [];
+    const seen = {};
+    (catalogProps || []).forEach(function (prop) {
+      const extra = metrics[prop.id] || {};
+      seen[prop.id] = true;
+      rows.push({
+        id: prop.id,
+        title: prop.title || prop.id,
+        location: prop.location || "",
+        status: extra.status || prop.status || "Available",
+        listingDate: prop.listingDate || "",
+        uniqueViews: extra.uniqueViews || 0,
+        activeSessions: extra.activeSessions || 0,
+        enquiry: extra.enquiry || 0,
+        "document-request": extra["document-request"] || 0,
+        "site-visit": extra["site-visit"] || 0,
+        offer: extra.offer || 0,
+        hidden: Boolean(prop.hidden),
+        inFile: Boolean((fileIds || {})[prop.id]),
+      });
+    });
+    Object.keys(metrics).forEach(function (id) {
+      if (seen[id]) {
+        return;
+      }
+      const extra = metrics[id];
+      rows.push({
+        id: id,
+        title: id,
+        location: "",
+        status: extra.status || "",
+        listingDate: "",
+        uniqueViews: extra.uniqueViews || 0,
+        activeSessions: extra.activeSessions || 0,
+        enquiry: extra.enquiry || 0,
+        "document-request": extra["document-request"] || 0,
+        "site-visit": extra["site-visit"] || 0,
+        offer: extra.offer || 0,
+        hidden: false,
+        inFile: Boolean((fileIds || {})[id]),
+      });
+    });
+    table._rows = rows;
+    if (!table._sortKey) {
+      table._sortKey = "id";
+      table._sortDir = "asc";
+    }
+    if (sortSel && !table._deskBound) {
+      sortSel.value = table._sortKey;
+    }
+
+    function compare(a, b) {
+      const key = table._sortKey;
+      let av = key === "leads" ? listingLeads(a) : a[key];
+      let bv = key === "leads" ? listingLeads(b) : b[key];
+      if (typeof av === "string") {
+        av = av.toLowerCase();
+        bv = String(bv || "").toLowerCase();
+      }
+      if (av < bv) {
+        return table._sortDir === "asc" ? -1 : 1;
+      }
+      if (av > bv) {
+        return table._sortDir === "asc" ? 1 : -1;
+      }
+      return 0;
+    }
+
+    function renderDesk() {
+      const q = ((search && search.value) || "").trim().toLowerCase();
+      const shown = table._rows
+        .filter(function (row) {
+          if (!q) {
+            return true;
+          }
+          return (
+            String(row.id).toLowerCase().indexOf(q) !== -1 ||
+            String(row.title).toLowerCase().indexOf(q) !== -1 ||
+            String(row.location).toLowerCase().indexOf(q) !== -1 ||
+            String(row.status).toLowerCase().indexOf(q) !== -1
+          );
+        })
+        .slice()
+        .sort(compare);
+      $$(".sort-btn", table).forEach(function (btn) {
+        const key = btn.getAttribute("data-sort");
+        btn.setAttribute("aria-sort", key === table._sortKey ? (table._sortDir === "asc" ? "ascending" : "descending") : "none");
+      });
+      tbody.innerHTML = shown
+        .map(function (row) {
+          return (
+            "<tr><td>" +
+            escapeHtml(row.id) +
+            "</td><td>" +
+            escapeHtml(row.title) +
+            (row.hidden ? ' <span class="muted">Hidden</span>' : "") +
+            "</td><td>" +
+            escapeHtml(row.location) +
+            "</td><td>" +
+            escapeHtml(row.status || "") +
+            "</td><td>" +
+            escapeHtml(row.uniqueViews) +
+            "</td><td>" +
+            escapeHtml(listingLeads(row)) +
+            '</td><td><div class="listing-actions">' +
+            '<select data-status-id="' +
+            escapeHtml(row.id) +
+            '" aria-label="Status for ' +
+            escapeHtml(row.id) +
+            '"><option>Available</option><option>Under offer</option><option>Sold</option></select>' +
+            '<button type="button" class="btn btn-secondary" data-edit-id="' +
+            escapeHtml(row.id) +
+            '">Edit</button>' +
+            '<button type="button" class="btn btn-secondary" data-copy-id="' +
+            escapeHtml(row.id) +
+            '">Duplicate</button>' +
+            '<button type="button" class="btn btn-secondary" data-delete-id="' +
+            escapeHtml(row.id) +
+            '">Delete</button></div></td></tr>'
+          );
+        })
+        .join("");
+      $$("select[data-status-id]", tbody).forEach(function (sel) {
+        const id = sel.getAttribute("data-status-id");
+        const row = shown.find(function (item) {
+          return item.id === id;
+        });
+        if (row && row.status) {
+          sel.value = row.status;
+        }
+        sel.addEventListener("change", async function () {
+          await apiSend("/listing-status/" + encodeURIComponent(id), {
+            method: "PATCH",
+            headers: tokenHeader(),
+            body: JSON.stringify({ status: sel.value }),
+          });
+        });
+      });
+      $$("[data-edit-id]", tbody).forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const form = $("#admin-property-form");
+          if (form && form._openListing) {
+            form._openListing(btn.getAttribute("data-edit-id"));
+          }
+        });
+      });
+      $$("[data-copy-id]", tbody).forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const form = $("#admin-property-form");
+          const id = btn.getAttribute("data-copy-id");
+          const prop = (form && form._listings || []).find(function (row) {
+            return row.id === id;
+          });
+          if (!form || !prop || !form._openListing) {
+            return;
+          }
+          form._openListing(id);
+          $("#admin-prop-id").value = "";
+          $("#admin-prop-title").value = (prop.title || id) + " copy";
+          $("#admin-delete-prop").hidden = true;
+          if ($("#admin-load-id")) {
+            $("#admin-load-id").value = "";
+          }
+        });
+      });
+      $$("[data-delete-id]", tbody).forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const form = $("#admin-property-form");
+          if (form && form._removeListing) {
+            form._removeListing(btn.getAttribute("data-delete-id"));
+          }
+        });
+      });
+    }
+
+    table._renderDesk = renderDesk;
+    renderDesk();
+
+    if (table._deskBound) {
+      return;
+    }
+    table._deskBound = true;
+    function setSort(key) {
+      if (table._sortKey === key) {
+        table._sortDir = table._sortDir === "asc" ? "desc" : "asc";
+      } else {
+        table._sortKey = key;
+        table._sortDir = key === "uniqueViews" || key === "leads" ? "desc" : "asc";
+      }
+      if (sortSel) {
+        sortSel.value = table._sortKey;
+      }
+      renderDesk();
+    }
+    $$(".sort-btn", table).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        setSort(btn.getAttribute("data-sort"));
+      });
+    });
+    if (sortSel) {
+      sortSel.addEventListener("change", function () {
+        table._sortKey = sortSel.value;
+        table._sortDir = sortSel.value === "uniqueViews" || sortSel.value === "leads" ? "desc" : "asc";
+        renderDesk();
+      });
+    }
+    if (search) {
+      search.addEventListener("input", renderDesk);
+    }
+    const addBtn = $("#admin-add-listing");
+    if (addBtn) {
+      addBtn.addEventListener("click", function () {
+        const form = $("#admin-property-form");
+        if (form && form._newListing) {
+          form._newListing();
+        }
+        if (form) {
+          form.scrollIntoView({ behavior: "smooth", block: "start" });
+          $("#admin-prop-id").focus();
+        }
+      });
+    }
   }
 
   function tokenHeader() {
@@ -1146,8 +1475,8 @@
       let catalogProps = [];
       let apiItems = [];
       try {
-        catalogProps = await loadCatalog();
-        const live = await apiSend("/properties", { method: "GET" });
+        catalogProps = await loadCatalog({ admin: true, includeHidden: true });
+        const live = await apiSend("/properties", { method: "GET", headers: tokenHeader() });
         apiItems = (live && live.items) || [];
       } catch (err) {
         catalogProps = [];
@@ -1172,48 +1501,7 @@
           return '<article class="kpi"><span>' + row[0] + "</span><strong>" + escapeHtml(row[1]) + "</strong></article>";
         })
         .join("");
-      const tbody = $("#admin-listings tbody");
-      tbody.innerHTML = (summary.properties || [])
-        .map(function (row) {
-          return (
-            "<tr><td>" +
-            escapeHtml(row.propertyId) +
-            "</td><td>" +
-            escapeHtml(row.status || "") +
-            "</td><td>" +
-            escapeHtml(row.uniqueViews) +
-            "</td><td>" +
-            escapeHtml(row.activeSessions) +
-            "</td><td>" +
-            escapeHtml(row.enquiry) +
-            "</td><td>" +
-            escapeHtml(row["document-request"]) +
-            "</td><td>" +
-            escapeHtml(row["site-visit"]) +
-            "</td><td>" +
-            escapeHtml(row.offer) +
-            '</td><td><select data-status-id="' +
-            escapeHtml(row.propertyId) +
-            '"><option>Available</option><option>Under offer</option><option>Sold</option></select></td></tr>'
-          );
-        })
-        .join("");
-      $$("select[data-status-id]").forEach(function (sel) {
-        const id = sel.getAttribute("data-status-id");
-        const row = (summary.properties || []).find(function (r) {
-          return r.propertyId === id;
-        });
-        if (row && row.status) {
-          sel.value = row.status;
-        }
-        sel.addEventListener("change", async function () {
-          await apiSend("/listing-status/" + encodeURIComponent(id), {
-            method: "PATCH",
-            headers: tokenHeader(),
-            body: JSON.stringify({ status: sel.value }),
-          });
-        });
-      });
+      setupListingsDesk(catalogProps, summary.properties || [], catalog.fileIds || {});
       $("#admin-cities tbody").innerHTML = (summary.cities || [])
         .map(function (row) {
           return "<tr><td>" + escapeHtml(row.city) + "</td><td>" + escapeHtml(row.region) + "</td><td>" + escapeHtml(row.count) + "</td></tr>";

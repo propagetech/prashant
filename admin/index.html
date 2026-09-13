@@ -46,7 +46,36 @@
       <div id="admin-app" hidden>
         <div class="kpi-grid" id="admin-kpis"></div>
         <h2>Listings</h2>
-        <div style="overflow:auto"><table id="admin-listings"><thead><tr><th>ID</th><th>Status</th><th>Views</th><th>Active</th><th>Enquiries</th><th>Docs</th><th>Visits</th><th>Offers</th><th>Set status</th></tr></thead><tbody></tbody></table></div>
+        <div class="listings-toolbar">
+          <button type="button" class="btn btn-primary" id="admin-add-listing">Add listing</button>
+          <label class="listings-search">Search
+            <input id="admin-listing-search" type="search" autocomplete="off" placeholder="ID, title, or place">
+          </label>
+          <label>Sort
+            <select id="admin-listing-sort">
+              <option value="id">Property ID</option>
+              <option value="title">Title</option>
+              <option value="status">Status</option>
+              <option value="listingDate">Listing date</option>
+              <option value="uniqueViews">Views</option>
+              <option value="leads">Leads</option>
+            </select>
+          </label>
+        </div>
+        <div style="overflow:auto"><table id="admin-listings">
+          <thead>
+            <tr>
+              <th><button type="button" class="sort-btn" data-sort="id" aria-sort="ascending">ID</button></th>
+              <th><button type="button" class="sort-btn" data-sort="title" aria-sort="none">Title</button></th>
+              <th><button type="button" class="sort-btn" data-sort="location" aria-sort="none">Location</button></th>
+              <th><button type="button" class="sort-btn" data-sort="status" aria-sort="none">Status</button></th>
+              <th><button type="button" class="sort-btn" data-sort="uniqueViews" aria-sort="none">Views</button></th>
+              <th><button type="button" class="sort-btn" data-sort="leads" aria-sort="none">Leads</button></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table></div>
         <form class="form admin-editor" id="admin-property-form">
           <h2>Add or edit a listing</h2>
           <p class="muted">Click the map to drop corners, search a Google Maps place, or paste latitude and longitude pairs. One point makes a location box. Two points make a rectangle. Three or more make a parcel outline. Do not enter survey numbers, deeds, or Drive links.</p>
@@ -100,6 +129,7 @@
               <label>Boundary note
                 <textarea id="admin-prop-note" maxlength="400"></textarea>
               </label>
+              <label class="consent"><input type="checkbox" id="admin-prop-hidden"> Hide from the public map</label>
             </div>
             <div class="admin-editor-map-col">
               <label>Find a place

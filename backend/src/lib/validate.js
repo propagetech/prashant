@@ -205,6 +205,7 @@ export function validateProperty(body) {
       photos: [],
       pimPdf: "",
       boundaryNote,
+      hidden: body.hidden === true,
     },
   };
 }
