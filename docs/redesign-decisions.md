@@ -94,7 +94,7 @@ Static site: Cloudflare Pages. API: SAM in `ap-south-1`, stack `prashant-backend
 - reCAPTCHA v2 keys
 - SES sender / owner inboxes
 - Parcel records: id, title, location text, extent, dimensions, access, type, facing, price guidance, listing date, photos, boundary coordinates
-- Private Drive folder per property
+- Private Drive folder per property (preview pack: [admin-document-pack.md](admin-document-pack.md))
 - Admin token / notification inbox
 - Owner-traffic exclusion list
 

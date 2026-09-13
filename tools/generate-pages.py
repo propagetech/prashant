@@ -606,7 +606,7 @@ admin_body = """  <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Internal</p>
       <h1>Demand desk</h1>
-      <p class="lede">Password is the API admin token. This page is not linked from the public menu and should stay out of search.</p>
+      <p class="lede">Password is the API admin token. This page is not linked from the public menu and should stay out of search. <a href="documents/">Collect document previews</a> is the internal Drive pack guide.</p>
       <form class="form" id="admin-login">
         <label>Admin token
           <input type="password" id="admin-token" autocomplete="current-password" required>
@@ -616,6 +616,7 @@ admin_body = """  <section class="hero">
       </form>
       <div id="admin-app" hidden>
         <div class="kpi-grid" id="admin-kpis"></div>
+        <p><a class="btn btn-secondary" href="documents/">Document preview guide</a></p>
         <h2>Listings</h2>
         <div class="listings-toolbar">
           <button type="button" class="btn btn-primary" id="admin-add-listing">Add listing</button>
@@ -752,6 +753,8 @@ pages.append((
     None,
     '<meta name="robots" content="noindex, nofollow">\n  ',
 ))
+
+# admin/documents/index.html is hand-maintained. Do not overwrite it here.
 
 for path, depth, title, desc, current, body, schema, extra in pages:
     path.parent.mkdir(parents=True, exist_ok=True)

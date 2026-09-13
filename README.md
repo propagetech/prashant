@@ -23,4 +23,4 @@ Edit [js/config.js](js/config.js) after you have:
 - reCAPTCHA v2 site key (optional)
 - a public contact email (enables mailto fallback)
 
-Admin: `/admin/` (not in the public menu). Password is the SAM `AdminToken`.
+Admin: `/admin/` (not in the public menu). Password is the SAM `AdminToken`. Internal document-preview workflow: [docs/admin-document-pack.md](docs/admin-document-pack.md) and `/admin/documents/`.
