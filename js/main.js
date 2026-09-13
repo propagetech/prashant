@@ -126,12 +126,12 @@
 
   function statusStyle(status) {
     if (status === "Sold") {
-      return { strokeColor: "#64748b", fillColor: "#94a3b8" };
+      return { strokeColor: "#C41E3A", fillColor: "#8B1428" };
     }
     if (status === "Under offer") {
-      return { strokeColor: "#c4893c", fillColor: "#8a5a24" };
+      return { strokeColor: "#D55E00", fillColor: "#9a3f00" };
     }
-    return { strokeColor: "#c4a574", fillColor: "#8a7349" };
+    return { strokeColor: "#178A4A", fillColor: "#0F5C32" };
   }
 
   function queryId() {
@@ -543,7 +543,7 @@
       }
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const halos = [];
+      const pulses = [];
       drawable.forEach(function (prop) {
         const pin = pinOf(prop);
         const colors = statusStyle(prop.status);
@@ -557,8 +557,8 @@
             scale: 9,
             fillColor: colors.strokeColor,
             fillOpacity: 1,
-            strokeColor: "#16130f",
-            strokeWeight: 2,
+            strokeColor: "#ffffff",
+            strokeWeight: 3,
           },
         });
         marker.addListener("click", function () {
@@ -579,26 +579,35 @@
               strokeColor: colors.strokeColor,
             },
           });
-          halos.push({ marker: halo, color: colors.strokeColor });
+          pulses.push({ core: marker, halo: halo, color: colors.strokeColor });
         }
       });
-      if (halos.length) {
+      if (pulses.length) {
         const started = performance.now();
         function tick(now) {
           const p = ((now - started) % 1800) / 1800;
+          const innerBeat = 0.42 + 0.58 * (0.5 + 0.5 * Math.cos(p * Math.PI * 2));
           let live = false;
-          halos.forEach(function (item) {
-            if (!item.marker.getMap()) {
+          pulses.forEach(function (item) {
+            if (!item.halo.getMap() || !item.core.getMap()) {
               return;
             }
             live = true;
-            item.marker.setIcon({
+            item.halo.setIcon({
               path: google.maps.SymbolPath.CIRCLE,
               scale: 9 + p * 16,
               fillColor: item.color,
               fillOpacity: 0.6 * (1 - p),
               strokeWeight: 0,
               strokeColor: item.color,
+            });
+            item.core.setIcon({
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 9,
+              fillColor: item.color,
+              fillOpacity: innerBeat,
+              strokeColor: "#ffffff",
+              strokeWeight: 3,
             });
           });
           if (live) {
@@ -1161,10 +1170,10 @@
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
             scale: 9,
-            fillColor: "#c4a574",
+            fillColor: "#178A4A",
             fillOpacity: 1,
-            strokeColor: "#16130f",
-            strokeWeight: 2,
+            strokeColor: "#ffffff",
+            strokeWeight: 3,
           },
         });
         editorPin.addListener("dragend", function () {
@@ -1191,10 +1200,10 @@
       if (editorPoints.length >= 3) {
         editorPolygon = new google.maps.Polygon({
           paths: editorPoints,
-          strokeColor: "#c4a574",
+          strokeColor: "#178A4A",
           strokeOpacity: 0.95,
           strokeWeight: 2,
-          fillColor: "#8a7349",
+          fillColor: "#0F5C32",
           fillOpacity: 0.28,
           map: editorMap,
         });
@@ -1206,10 +1215,10 @@
             east: Math.max(editorPoints[0].lng, editorPoints[1].lng),
             west: Math.min(editorPoints[0].lng, editorPoints[1].lng),
           },
-          strokeColor: "#c4a574",
+          strokeColor: "#178A4A",
           strokeOpacity: 0.95,
           strokeWeight: 2,
-          fillColor: "#8a7349",
+          fillColor: "#0F5C32",
           fillOpacity: 0.28,
           map: editorMap,
         });
