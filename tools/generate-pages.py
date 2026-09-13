@@ -8,6 +8,7 @@ NAV = [
     ("how", "How it works", "how-it-works/"),
     ("faq", "FAQ", "faq/"),
     ("contact", "Contact", "contact/"),
+    ("docs", "Request documents", "request-documents/"),
 ]
 
 

@@ -229,7 +229,7 @@ p {
   color: var(--accent);
 }
 
-.header-cta {
+.btn.header-cta {
   display: none;
 }
 
@@ -248,7 +248,7 @@ p {
     gap: var(--space-5);
   }
 
-  .header-cta {
+  .btn.header-cta {
     display: inline-flex;
   }
 }
@@ -342,6 +342,17 @@ button.btn {
 #property-map {
   min-height: 28rem;
   height: 70vh;
+}
+
+.map-shell:has(#map-empty:not([hidden])) #property-map,
+.map-shell:has(#map-fallback:not([hidden])) #property-map {
+  height: 0;
+  min-height: 0;
+}
+
+.map-empty:not([hidden]),
+.map-fallback:not([hidden]) {
+  position: relative;
 }
 
 .map-empty,
