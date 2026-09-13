@@ -12,7 +12,7 @@ export function validateSubmission(body) {
     return { honeypot: true };
   }
   const formType = clip(body.formType, 40);
-  const allowed = ["enquiry", "document-request", "site-visit", "offer"];
+  const allowed = ["enquiry", "document-request", "site-visit", "offer", "interest"];
   if (!allowed.includes(formType)) {
     return { error: "Unknown form type" };
   }
@@ -22,7 +22,11 @@ export function validateSubmission(body) {
   if (!name || !mobile) {
     return { error: "Name and mobile are required" };
   }
-  if (!email || !EMAIL.test(email)) {
+  if (formType === "interest") {
+    if (email && !EMAIL.test(email)) {
+      return { error: "A valid email is required" };
+    }
+  } else if (!email || !EMAIL.test(email)) {
     return { error: "A valid email is required" };
   }
   if (body.consent !== true && body.consent !== "yes") {

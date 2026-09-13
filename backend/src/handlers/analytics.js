@@ -28,6 +28,7 @@ export async function handler(event) {
         "document-request": 0,
         "site-visit": 0,
         offer: 0,
+        interest: 0,
         status: "",
       };
     }
@@ -71,7 +72,7 @@ export async function handler(event) {
     (acc, p) => {
       acc.uniqueViews += p.uniqueViews;
       acc.activeSessions += p.activeSessions;
-      acc.leads += p.enquiry + p["document-request"] + p["site-visit"] + p.offer;
+      acc.leads += p.enquiry + p["document-request"] + p["site-visit"] + p.offer + (p.interest || 0);
       acc.offers += p.offer;
       return acc;
     },

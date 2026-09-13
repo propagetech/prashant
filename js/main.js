@@ -311,14 +311,66 @@
     });
   }
 
-  function popupHtml(prop) {
+  function canUseIwHeader(info) {
+    return Boolean(info && typeof info.setHeaderContent === "function");
+  }
+
+  function popupHeaderEl(view, prop) {
+    if (view === "interest") {
+      const bar = document.createElement("div");
+      bar.className = "popup-interest-bar";
+      bar.innerHTML =
+        '<button type="button" class="popup-back" data-popup-back aria-label="Back to listing">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>' +
+        "</button><h3>I'm interested</h3>";
+      return bar;
+    }
+    const title = document.createElement("h3");
+    title.className = "popup-iw-title";
+    title.textContent = (prop && (prop.title || prop.id)) || "Listing";
+    return title;
+  }
+
+  function relayoutPopup(root) {
+    const iwBody = root && root.closest(".gm-style-iw-d");
+    const iwCard = root && root.closest(".gm-style-iw-c");
+    if (iwBody) {
+      iwBody.style.maxHeight = "none";
+      iwBody.style.height = "";
+      iwBody.style.overflow = "auto";
+    }
+    if (iwCard) {
+      iwCard.style.height = "";
+    }
+  }
+
+  function setPopupOpen(isOpen) {
+    const shell = $("#map-shell");
+    if (shell) {
+      shell.classList.toggle("is-popup-open", Boolean(isOpen));
+    }
+  }
+
+  function popupHtml(prop, opts) {
+    const id = escapeHtml(prop.id);
+    const useHeader = Boolean(opts && opts.useHeader);
+    const summaryTitle = useHeader ? "" : "<h3>" + escapeHtml(prop.title || prop.id) + "</h3>";
+    const interestBar = useHeader
+      ? ""
+      : '<div class="popup-interest-bar">' +
+        '<button type="button" class="popup-back" data-popup-back aria-label="Back to listing">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>' +
+        "</button><h3>I'm interested</h3></div>";
     return (
-      '<article class="property-popup">' +
+      '<article class="property-popup" data-property-id="' +
+      id +
+      '" data-view="summary">' +
+      '<div class="popup-view" data-popup-view="summary">' +
       '<p class="property-id">' +
-      escapeHtml(prop.id) +
-      "</p><h3>" +
-      escapeHtml(prop.title || prop.id) +
-      "</h3><p>" +
+      id +
+      "</p>" +
+      summaryTitle +
+      "<p>" +
       escapeHtml(prop.location || "") +
       "</p><p><strong>Extent:</strong> " +
       escapeHtml(prop.area || "On request") +
@@ -331,9 +383,9 @@
       "<p><strong>Listed:</strong> " +
       escapeHtml(formatDate(prop.listingDate)) +
       '</p><p><strong>Views:</strong> <span id="views-' +
-      escapeHtml(prop.id) +
+      id +
       '">Loading</span></p><p><strong>Active viewers:</strong> <span id="live-' +
-      escapeHtml(prop.id) +
+      id +
       '">Loading</span></p></div></details><div class="popup-actions">' +
       (prop.mapsUrl
         ? '<a class="btn btn-secondary" href="' +
@@ -346,10 +398,117 @@
       '<a class="btn btn-secondary" href="' +
       escapeHtml(pageUrl("request-documents/", { id: prop.id })) +
       '">Request documents</a>' +
-      '<a class="btn btn-primary" href="' +
-      escapeHtml(pageUrl("submit-offer/", { id: prop.id })) +
-      '">Make an offer</a></div></article>'
+      '<button type="button" class="btn btn-primary" data-popup-interest>I\'m interested</button></div></div>' +
+      '<div class="popup-view" data-popup-view="interest" hidden>' +
+      interestBar +
+      '<form class="popup-interest-form" data-popup-form>' +
+      '<input class="hp" type="text" name="website_hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+      '<div class="popup-interest-context">' +
+      '<p class="property-id">' +
+      id +
+      '</p><p class="popup-listing-name">' +
+      escapeHtml(prop.title || prop.id) +
+      "</p></div>" +
+      '<label>Name<input name="name" required maxlength="80" autocomplete="name"></label>' +
+      '<label>Mobile number<input name="mobile" type="tel" required maxlength="20" autocomplete="tel" inputmode="tel"></label>' +
+      '<label class="consent"><input type="checkbox" name="consent" value="yes" required> <span>I agree to be contacted about this listing. See the <a href="' +
+      escapeHtml(pageUrl("privacy/")) +
+      '">privacy notice</a>.</span></label>' +
+      '<button class="btn btn-primary" type="submit">Submit</button>' +
+      '<p class="form-status" role="status"></p></form></div></article>'
     );
+  }
+
+  function bindPopupInterestForm(info, prop) {
+    const root = document.querySelector(".property-popup");
+    if (!root || root.dataset.bound === "1") {
+      return;
+    }
+    root.dataset.bound = "1";
+    relayoutPopup(root);
+    const iwCard = root.closest(".gm-style-iw-c");
+    if (iwCard) {
+      iwCard.addEventListener("pointerdown", function (event) {
+        event.stopPropagation();
+      });
+    }
+    const summary = $('[data-popup-view="summary"]', root);
+    const interest = $('[data-popup-view="interest"]', root);
+    const form = $("[data-popup-form]", root);
+    const status = $(".form-status", form);
+    const nameInput = $("input[name=name]", form);
+    const openBtn = $("[data-popup-interest]", root);
+    const propertyId = root.getAttribute("data-property-id") || "";
+    const useHeader = canUseIwHeader(info);
+
+    function bindHeaderBack(header) {
+      const back = header && header.querySelector("[data-popup-back]");
+      if (!back) {
+        return;
+      }
+      back.addEventListener("click", function () {
+        showView("summary");
+      });
+    }
+
+    function showView(name) {
+      summary.hidden = name !== "summary";
+      interest.hidden = name !== "interest";
+      root.dataset.view = name;
+      if (useHeader) {
+        const header = popupHeaderEl(name, prop);
+        info.setHeaderContent(header);
+        bindHeaderBack(header);
+      }
+      relayoutPopup(root);
+      const focusEl = name === "interest" ? nameInput : openBtn;
+      if (focusEl) {
+        focusEl.focus();
+      }
+    }
+
+    openBtn.addEventListener("click", function () {
+      showView("interest");
+    });
+    const fallbackBack = $("[data-popup-back]", root);
+    if (fallbackBack) {
+      fallbackBack.addEventListener("click", function () {
+        showView("summary");
+      });
+    }
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.formType = "interest";
+      data.propertyId = propertyId;
+      data.source = location.pathname;
+      data.consent = data.consent === "yes";
+      data.utm = readUtm();
+      const submitBtn = $("button[type=submit]", form);
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+      if (!apiUrl("/submit")) {
+        status.className = "form-status is-error";
+        status.textContent = "The enquiry service is not configured yet. Please try again later.";
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+        return;
+      }
+      try {
+        await apiSend("/submit", { method: "POST", body: JSON.stringify(data) });
+        status.className = "form-status is-ok";
+        status.textContent = "Received. We will call you on the number you supplied.";
+        form.reset();
+      } catch (err) {
+        status.className = "form-status is-error";
+        status.textContent = "Could not send just now. Wait a moment and try again.";
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+    });
   }
 
   async function loadPropertyStats(propertyId) {
@@ -499,8 +658,15 @@
         },
       });
       mapInstance = map;
+      let popupProp = null;
       const info = new google.maps.InfoWindow({
-        maxWidth: Math.min(320, window.innerWidth - 48),
+        maxWidth: Math.min(340, window.innerWidth - 40),
+      });
+      info.addListener("domready", function () {
+        bindPopupInterestForm(info, popupProp);
+      });
+      info.addListener("closeclick", function () {
+        setPopupOpen(false);
       });
       let activeOutline = null;
 
@@ -514,9 +680,17 @@
       function openInfo(prop, at) {
         recordView(prop.id);
         startPresence(prop.id);
-        info.setContent(popupHtml(prop));
+        popupProp = prop;
+        if (canUseIwHeader(info)) {
+          info.setHeaderContent(popupHeaderEl("summary", prop));
+        }
+        if (typeof info.setOptions === "function") {
+          info.setOptions({ ariaLabel: prop.title || prop.id });
+        }
+        info.setContent(popupHtml(prop, { useHeader: canUseIwHeader(info) }));
         info.setPosition(at);
         info.open({ map: map });
+        setPopupOpen(true);
         loadPropertyStats(prop.id);
       }
 
@@ -543,72 +717,99 @@
       }
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const pulses = [];
+      const pulseGreen = "#178A4A";
+      const beadPath = "M -0.32,-1 A 0.32,0.32 0 1,1 0.32,-1 A 0.32,0.32 0 1,1 -0.32,-1 Z";
+      const motions = [];
+
+      function coreIcon(fill, opacity) {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 9,
+          fillColor: fill,
+          fillOpacity: opacity,
+          strokeColor: "#ffffff",
+          strokeWeight: 3,
+        };
+      }
+
+      function beadIcon(rotation) {
+        return {
+          path: beadPath,
+          scale: 9,
+          fillColor: pulseGreen,
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 1,
+          rotation: rotation,
+        };
+      }
+
+      function haloIcon(scale, opacity) {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: scale,
+          fillColor: pulseGreen,
+          fillOpacity: opacity,
+          strokeWeight: 0,
+          strokeColor: pulseGreen,
+        };
+      }
+
       drawable.forEach(function (prop) {
         const pin = pinOf(prop);
         const colors = statusStyle(prop.status);
+        const halo = new google.maps.Marker({
+          position: pin,
+          map: map,
+          clickable: false,
+          optimized: false,
+          zIndex: 1,
+          icon: haloIcon(16, reduceMotion ? 0.22 : 0.36),
+        });
         const marker = new google.maps.Marker({
           position: pin,
           map: map,
           title: prop.title || prop.id,
+          optimized: false,
           zIndex: 2,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 9,
-            fillColor: colors.strokeColor,
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 3,
-          },
+          icon: coreIcon(colors.strokeColor, 1),
         });
         marker.addListener("click", function () {
           showListing(prop, pin);
         });
+        const spin = new google.maps.Marker({
+          position: pin,
+          map: map,
+          clickable: false,
+          optimized: false,
+          zIndex: 3,
+          icon: beadIcon(0),
+        });
         if (!reduceMotion) {
-          const halo = new google.maps.Marker({
-            position: pin,
-            map: map,
-            clickable: false,
-            zIndex: 1,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 9,
-              fillColor: colors.strokeColor,
-              fillOpacity: 0.55,
-              strokeWeight: 0,
-              strokeColor: colors.strokeColor,
-            },
+          motions.push({
+            halo: halo,
+            core: marker,
+            spin: spin,
+            fill: colors.strokeColor,
           });
-          pulses.push({ core: marker, halo: halo, color: colors.strokeColor });
         }
       });
-      if (pulses.length) {
+      if (motions.length) {
         const started = performance.now();
         function tick(now) {
-          const p = ((now - started) % 1800) / 1800;
-          const innerBeat = 0.42 + 0.58 * (0.5 + 0.5 * Math.cos(p * Math.PI * 2));
+          const t = now - started;
+          const beep = 0.52 + 0.48 * (0.5 + 0.5 * Math.sin((t / 720) * Math.PI * 2));
+          const deg = ((t / 2200) * 360) % 360;
+          const pulse = (t % 1800) / 1800;
           let live = false;
-          pulses.forEach(function (item) {
-            if (!item.halo.getMap() || !item.core.getMap()) {
+          motions.forEach(function (item) {
+            if (!item.core.getMap()) {
               return;
             }
             live = true;
-            item.halo.setIcon({
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 9 + p * 16,
-              fillColor: item.color,
-              fillOpacity: 0.6 * (1 - p),
-              strokeWeight: 0,
-              strokeColor: item.color,
-            });
-            item.core.setIcon({
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 9,
-              fillColor: item.color,
-              fillOpacity: innerBeat,
-              strokeColor: "#ffffff",
-              strokeWeight: 3,
-            });
+            item.core.setIcon(coreIcon(item.fill, beep));
+            item.spin.setIcon(beadIcon(deg));
+            item.halo.setIcon(haloIcon(14 + 12 * pulse, 0.4 * (1 - pulse)));
           });
           if (live) {
             requestAnimationFrame(tick);
@@ -1569,7 +1770,7 @@
   }
 
   function listingLeads(row) {
-    return (row.enquiry || 0) + (row["document-request"] || 0) + (row["site-visit"] || 0) + (row.offer || 0);
+    return (row.enquiry || 0) + (row["document-request"] || 0) + (row["site-visit"] || 0) + (row.offer || 0) + (row.interest || 0);
   }
 
   function setupListingsDesk(catalogProps, summaryRows, fileIds) {
@@ -1603,6 +1804,7 @@
         "document-request": extra["document-request"] || 0,
         "site-visit": extra["site-visit"] || 0,
         offer: extra.offer || 0,
+        interest: extra.interest || 0,
         hidden: Boolean(prop.hidden),
         inFile: Boolean((fileIds || {})[prop.id]),
       });
@@ -1624,6 +1826,7 @@
         "document-request": extra["document-request"] || 0,
         "site-visit": extra["site-visit"] || 0,
         offer: extra.offer || 0,
+        interest: extra.interest || 0,
         hidden: false,
         inFile: Boolean((fileIds || {})[id]),
       });
