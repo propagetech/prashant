@@ -542,6 +542,8 @@
         openInfo(prop, at || pinOf(prop));
       }
 
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const halos = [];
       drawable.forEach(function (prop) {
         const pin = pinOf(prop);
         const colors = statusStyle(prop.status);
@@ -549,6 +551,7 @@
           position: pin,
           map: map,
           title: prop.title || prop.id,
+          zIndex: 2,
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
             scale: 9,
@@ -561,7 +564,49 @@
         marker.addListener("click", function () {
           showListing(prop, pin);
         });
+        if (!reduceMotion) {
+          const halo = new google.maps.Marker({
+            position: pin,
+            map: map,
+            clickable: false,
+            zIndex: 1,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 9,
+              fillColor: colors.strokeColor,
+              fillOpacity: 0.55,
+              strokeWeight: 0,
+              strokeColor: colors.strokeColor,
+            },
+          });
+          halos.push({ marker: halo, color: colors.strokeColor });
+        }
       });
+      if (halos.length) {
+        const started = performance.now();
+        function tick(now) {
+          const p = ((now - started) % 1800) / 1800;
+          let live = false;
+          halos.forEach(function (item) {
+            if (!item.marker.getMap()) {
+              return;
+            }
+            live = true;
+            item.marker.setIcon({
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 9 + p * 16,
+              fillColor: item.color,
+              fillOpacity: 0.6 * (1 - p),
+              strokeWeight: 0,
+              strokeColor: item.color,
+            });
+          });
+          if (live) {
+            requestAnimationFrame(tick);
+          }
+        }
+        requestAnimationFrame(tick);
+      }
       info.addListener("closeclick", hideOutline);
       map.addListener("click", function () {
         hideOutline();
