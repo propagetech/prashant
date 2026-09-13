@@ -719,6 +719,14 @@
 
     function applyFull(next) {
       isFull = next;
+      if (next) {
+        if (!form._mapHome) {
+          form._mapHome = { parent: shell.parentNode, next: shell.nextSibling };
+        }
+        document.body.appendChild(shell);
+      } else if (form._mapHome && form._mapHome.parent) {
+        form._mapHome.parent.insertBefore(shell, form._mapHome.next);
+      }
       shell.classList.toggle("is-full", isFull);
       document.body.classList.toggle("is-map-full", isFull);
       btn.setAttribute("aria-expanded", isFull ? "true" : "false");
@@ -1174,15 +1182,24 @@
     }
     form._editorReady = true;
 
+    setupAdminMapExpand(form);
     loadMapsScript(function () {
       editorMap = new google.maps.Map(mapEl, {
         center: { lat: 12.9716, lng: 77.5946 },
         zoom: 11,
         mapTypeControl: true,
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+          position: google.maps.ControlPosition.LEFT_BOTTOM,
+        },
         streetViewControl: false,
         fullscreenControl: false,
         clickableIcons: false,
         gestureHandling: "greedy",
+        zoomControl: true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        },
       });
       form._editorMap = editorMap;
       editorMap.addListener("click", function (event) {

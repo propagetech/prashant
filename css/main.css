@@ -395,6 +395,12 @@ button.btn {
   box-shadow: var(--shadow);
 }
 
+#property-map,
+#admin-editor-map {
+  position: relative;
+  z-index: 0;
+}
+
 #property-map {
   min-height: 22rem;
   height: min(70vh, 40rem);
@@ -415,6 +421,7 @@ button.btn {
   justify-content: space-between;
   gap: var(--space-3);
   pointer-events: none;
+  z-index: 6;
 }
 
 .map-chrome > * {
@@ -478,7 +485,7 @@ button.btn {
 .map-shell.is-full {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 80;
   min-height: 100dvh;
   border: 0;
   border-radius: 0;
@@ -800,7 +807,7 @@ body.is-map-full .consent-banner {
   left: var(--space-3);
   right: var(--space-3);
   bottom: max(var(--space-3), env(safe-area-inset-bottom, 0px));
-  z-index: 2;
+  z-index: 6;
   justify-content: center;
 }
 
