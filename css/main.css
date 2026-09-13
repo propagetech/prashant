@@ -307,6 +307,13 @@ p {
   .site-nav.is-open {
     display: block;
   }
+
+  .site-nav.is-open ~ .header-cta,
+  .nav-toggle[aria-expanded="true"] ~ .header-cta {
+    display: inline-flex;
+    width: 100%;
+    margin-top: var(--space-2);
+  }
 }
 
 .btn,
@@ -1049,12 +1056,12 @@ textarea {
 
 .popup-interest-form {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .popup-interest-context {
   display: grid;
-  gap: var(--space-1);
+  gap: 0;
 }
 
 .popup-interest-context .property-id {
@@ -1069,22 +1076,47 @@ textarea {
   color: hsl(32 18% 12%);
 }
 
+.popup-interest-form label {
+  gap: var(--space-1);
+}
+
 .popup-interest-form .btn {
   width: 100%;
+}
+
+.popup-interest-form .form-status {
+  min-height: 0;
+  margin: 0;
+}
+
+.popup-interest-form .form-status:empty {
+  display: none;
 }
 
 .property-popup input:not([type="checkbox"]) {
   background: hsl(38 30% 98%);
   color: hsl(32 18% 12%);
   border-color: hsl(32 12% 70%);
+  padding: 0.5rem 0.7rem;
+  width: 100%;
 }
 
 .property-popup .consent {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  font-size: 0.85rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+  line-height: 1.25;
   color: hsl(32 14% 28%);
+}
+
+.property-popup .consent span {
+  min-width: 0;
+}
+
+.property-popup .consent input {
+  margin-top: 0;
+  flex: 0 0 auto;
 }
 
 .property-popup .consent a {
@@ -1093,6 +1125,7 @@ textarea {
 
 .gm-style-iw-c {
   padding: 0 !important;
+  height: auto !important;
   max-height: min(78vh, 36rem) !important;
 }
 
@@ -1102,7 +1135,7 @@ textarea {
   gap: var(--space-2);
   height: auto !important;
   min-height: 44px;
-  padding: 6px 4px 0 12px !important;
+  padding: 4px 4px 0 12px !important;
   font-family: var(--font-body);
 }
 
@@ -1120,9 +1153,11 @@ textarea {
 }
 
 .gm-style-iw-d {
-  overflow: auto !important;
+  flex: 0 1 auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   max-height: none !important;
-  padding: 4px 12px 14px !important;
+  padding: 2px 12px 10px !important;
 }
 
 .gm-style-iw-chr .gm-ui-hover-effect {

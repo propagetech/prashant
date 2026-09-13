@@ -334,14 +334,24 @@
   function relayoutPopup(root) {
     const iwBody = root && root.closest(".gm-style-iw-d");
     const iwCard = root && root.closest(".gm-style-iw-c");
+    const iwWrap = iwCard && iwCard.parentElement;
+    [iwBody, iwCard, iwWrap].forEach(function (el) {
+      if (!el) {
+        return;
+      }
+      el.style.height = "auto";
+      el.style.maxHeight = "none";
+    });
     if (iwBody) {
-      iwBody.style.maxHeight = "none";
-      iwBody.style.height = "";
       iwBody.style.overflow = "auto";
     }
-    if (iwCard) {
-      iwCard.style.height = "";
-    }
+  }
+
+  function scheduleRelayout(root) {
+    relayoutPopup(root);
+    requestAnimationFrame(function () {
+      relayoutPopup(root);
+    });
   }
 
   function setPopupOpen(isOpen) {
@@ -411,9 +421,9 @@
       "</p></div>" +
       '<label>Name<input name="name" required maxlength="80" autocomplete="name"></label>' +
       '<label>Mobile number<input name="mobile" type="tel" required maxlength="20" autocomplete="tel" inputmode="tel"></label>' +
-      '<label class="consent"><input type="checkbox" name="consent" value="yes" required> <span>I agree to be contacted about this listing. See the <a href="' +
+      '<label class="consent"><input type="checkbox" name="consent" value="yes" required> <span>I agree to be contacted. <a href="' +
       escapeHtml(pageUrl("privacy/")) +
-      '">privacy notice</a>.</span></label>' +
+      '">Privacy</a>.</span></label>' +
       '<button class="btn btn-primary" type="submit">Submit</button>' +
       '<p class="form-status" role="status"></p></form></div></article>'
     );
@@ -425,7 +435,7 @@
       return;
     }
     root.dataset.bound = "1";
-    relayoutPopup(root);
+    scheduleRelayout(root);
     const iwCard = root.closest(".gm-style-iw-c");
     if (iwCard) {
       iwCard.addEventListener("pointerdown", function (event) {
@@ -460,7 +470,7 @@
         info.setHeaderContent(header);
         bindHeaderBack(header);
       }
-      relayoutPopup(root);
+      scheduleRelayout(root);
       const focusEl = name === "interest" ? nameInput : openBtn;
       if (focusEl) {
         focusEl.focus();
