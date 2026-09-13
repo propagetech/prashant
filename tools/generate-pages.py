@@ -100,8 +100,8 @@ def shell(depth, title, description, current, body, extra_head="", schema=None):
   <meta name="description" content="{description}">
   <meta name="theme-color" content="#16130f">
   <link rel="icon" href="{ico}" type="image/svg+xml">
-  <link rel="preload" href="{asset(depth, 'fonts/jost-latin-400-normal.woff2')}" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="{asset(depth, 'fonts/cormorant-garamond-latin-500-normal.woff2')}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{asset(depth, 'fonts/manrope-latin-400-normal.woff2')}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{asset(depth, 'fonts/Coconat-Demi.woff2')}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{css}">
   {extra_head}{schema_tag}
 </head>

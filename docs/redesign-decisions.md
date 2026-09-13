@@ -58,7 +58,7 @@ Menu is the buyer journey, not an org chart: Properties (map), How it works, FAQ
 ## Art direction
 
 - **Register:** Ultra-luxury / private-client (substantial land holdings)
-- **Type:** Cormorant Garamond (headings 500/600) + Jost (body 300/400/500), self-hosted woff2.
+- **Type:** Coconat (headings, Collletttivo / Sara Lavazza) + Luxurious Script (one short accent phrase per screen) + Manrope (body, nav, buttons, eyebrows). Self-hosted woff2 only. No Google Fonts CDN.
 - **Palette:** Espresso field `hsl(32 18% 7%)`, ivory ink `hsl(38 35% 93%)`, champagne `hsl(39 42% 68%)`, map stroke `#c4a574`. Locked AA pairs in `tools/contrast-audit.mjs`.
 - **Motion:** Subtle; map is the signature; `prefers-reduced-motion` respected.
 - **Signature element:** Full-width parcel map with champagne polygons.

@@ -1,39 +1,47 @@
 @font-face {
-  font-family: "Cormorant Garamond";
-  src: url("../fonts/cormorant-garamond-latin-500-normal.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Cormorant Garamond";
-  src: url("../fonts/cormorant-garamond-latin-600-normal.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: Jost;
-  src: url("../fonts/jost-latin-300-normal.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: Jost;
-  src: url("../fonts/jost-latin-400-normal.woff2") format("woff2");
+  font-family: Coconat;
+  src: url("../fonts/Coconat-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: Jost;
-  src: url("../fonts/jost-latin-500-normal.woff2") format("woff2");
+  font-family: Coconat;
+  src: url("../fonts/Coconat-Demi.woff2") format("woff2");
   font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Luxurious Script";
+  src: url("../fonts/luxurious-script-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Manrope;
+  src: url("../fonts/manrope-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Manrope;
+  src: url("../fonts/manrope-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Manrope;
+  src: url("../fonts/manrope-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
@@ -59,8 +67,9 @@
   --danger: hsl(8 70% 72%);
   --radius: 2px;
   --shadow: 0 24px 60px hsl(0 0% 0% / 0.35);
-  --font-display: "Cormorant Garamond", "Times New Roman", serif;
-  --font-body: Jost, "Helvetica Neue", sans-serif;
+  --font-display: Coconat, Georgia, serif;
+  --font-script: "Luxurious Script", cursive;
+  --font-body: Manrope, Arial, sans-serif;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -117,14 +126,34 @@ h2,
 h3,
 .brand {
   font-family: var(--font-display);
-  line-height: 1.12;
+  line-height: 1.15;
   font-weight: 500;
+  letter-spacing: 0;
 }
 
 h1 {
   font-size: clamp(2.15rem, 4.2vw, 3.6rem);
   margin: 0 0 var(--space-4);
   letter-spacing: -0.02em;
+}
+
+.script-accent {
+  font-family: var(--font-script);
+  font-size: clamp(2.5rem, 5vw, 5.5rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0;
+  color: var(--gold);
+  margin: 0 0 var(--space-2);
+  padding-block: 0.12em;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: 0;
 }
 
 h2 {
@@ -411,10 +440,11 @@ button.btn {
 }
 
 .eyebrow {
+  font-family: var(--font-body);
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.16em;
   font-size: 0.72rem;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--gold);
   margin-bottom: var(--space-2);
 }

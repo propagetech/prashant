@@ -1,7 +1,10 @@
+Coconat: Copyright 2023 Collletttivo (https://www.collletttivo.it/ | collletttivo@gmail.com). Designed by Sara Lavazza. https://www.collletttivo.it/typefaces/coconat
+Luxurious Script: Copyright 2015 The Luxurious Script Project Authors (https://github.com/googlefonts/luxurious-script)
+Manrope: Copyright 2018 The Manrope Project Authors (https://github.com/sharanda/manrope)
 Cormorant Garamond: Copyright 2015 The Cormorant Project Authors (https://github.com/CatharsisFonts/Cormorant)
 Jost: Copyright 2014 The Jost Project Authors (https://github.com/indestructible-type)
 Spectral: Copyright 2017 The Spectral Project Authors (https://github.com/productiontype/Spectral)
-Manrope: Copyright 2018 The Manrope Project Authors (https://github.com/sharanda/manrope)
 
 These fonts are licensed under the SIL Open Font License, Version 1.1.
 https://scripts.sil.org/OFL
+The Coconat OFL text is also in Coconat-OFL.txt.
