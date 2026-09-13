@@ -2,6 +2,10 @@
 # Internal project key is prashant. Public copy says property or properties.
 from pathlib import Path
 
+# Public brand. Do not mention "Prashant" on public URLs for now.
+# BRAND = "Prashant Properties"
+BRAND = "Properties"
+
 ROOT = Path("/workspace")
 
 NAV = [
@@ -35,7 +39,7 @@ def header(depth, current):
     nav = "\n".join(items)
     return f"""<header class="site-header">
   <div class="wrap topbar">
-    <a class="brand" href="{home}">Prashant Properties</a>
+    <a class="brand" href="{home}">{BRAND}</a>
     <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
     <nav id="site-nav" class="site-nav" aria-label="Primary">
       <ul>
@@ -52,7 +56,7 @@ def footer(depth):
     return f"""<footer class="site-footer">
   <div class="wrap footer-grid">
     <div>
-      <p class="footer-brand">Prashant Properties</p>
+      <p class="footer-brand">{BRAND}</p>
       <p>Independent land listings. Public reference IDs only. Title papers stay off this site until a request is approved.</p>
     </div>
     <div>
@@ -122,7 +126,7 @@ def shell(depth, title, description, current, body, extra_head="", schema=None):
 home_schema = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
-    "name": "Prashant Properties",
+    "name": BRAND,
     "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire, request documents, or submit an offer.",
 }
 
@@ -163,7 +167,7 @@ pages = []
 pages.append((
     ROOT / "index.html",
     0,
-    "Properties for sale | Prashant Properties",
+    "Properties for sale",
     "Map of land parcels for sale. Tap a pin to inspect a listing.",
     "properties",
     """  <section class="hero">
@@ -222,7 +226,7 @@ pages.append((
 pages.append((
     ROOT / "property" / "index.html",
     1,
-    "Property dossier | Prashant Properties",
+    "Property dossier",
     "Public summary for a land parcel: extent, location, listing date, and next steps.",
     "properties",
     """  <section class="hero">
@@ -271,7 +275,7 @@ pages.append((
 pages.append((
     ROOT / "photos" / "index.html",
     1,
-    "Property photographs | Prashant Properties",
+    "Property photographs",
     "Photograph gallery for a public land listing.",
     "properties",
     """  <section class="hero">
@@ -329,7 +333,7 @@ def form_page(title_text, h1, lede, form_type, extra_fields, submit_label):
 pages.append((
     ROOT / "request-documents" / "index.html",
     1,
-    "Request documents | Prashant Properties",
+    "Request documents",
     "Request controlled access to property records. Sensitive files are not public links.",
     "contact",
     form_page(
@@ -365,7 +369,7 @@ pages.append((
 pages.append((
     ROOT / "submit-offer" / "index.html",
     1,
-    "Submit an offer | Prashant Properties",
+    "Submit an offer",
     "Send an offer amount and contact details for a public property reference.",
     "contact",
     form_page(
@@ -415,7 +419,7 @@ pages.append((
 pages.append((
     ROOT / "site-visit" / "index.html",
     1,
-    "Request a site visit | Prashant Properties",
+    "Request a site visit",
     "Ask to inspect a listed parcel in person.",
     "contact",
     form_page(
@@ -445,7 +449,7 @@ pages.append((
 pages.append((
     ROOT / "how-it-works" / "index.html",
     1,
-    "How it works | Prashant Properties",
+    "How it works",
     "How to inspect a parcel on the map, request documents, visit, and offer.",
     "how",
     """  <section class="hero">
@@ -494,7 +498,7 @@ faq_items = "\n".join(
 pages.append((
     ROOT / "faq" / "index.html",
     1,
-    "FAQ | Prashant Properties",
+    "FAQ",
     "Answers about boundaries, documents, view counts, and site visits.",
     "faq",
     f"""  <section class="hero">
@@ -514,7 +518,7 @@ pages.append((
 pages.append((
     ROOT / "contact" / "index.html",
     1,
-    "Contact | Prashant Properties",
+    "Contact",
     "Send an enquiry about a land listing. Phone and WhatsApp will be published when confirmed.",
     "contact",
     form_page(
@@ -541,7 +545,7 @@ pages.append((
 pages.append((
     ROOT / "privacy" / "index.html",
     1,
-    "Privacy notice | Prashant Properties",
+    "Privacy notice",
     "What this site collects, why, how long, and how to withdraw consent.",
     "contact",
     """  <section class="hero">
@@ -569,7 +573,7 @@ pages.append((
 pages.append((
     ROOT / "terms" / "index.html",
     1,
-    "Terms | Prashant Properties",
+    "Terms",
     "Terms for using the public listing map and sending enquiries.",
     "contact",
     """  <section class="hero">
@@ -589,7 +593,7 @@ pages.append((
 pages.append((
     ROOT / "disclaimer" / "index.html",
     1,
-    "Disclaimer | Prashant Properties",
+    "Disclaimer",
     "Map boundaries are not a cadastral survey. Buyers must verify title independently.",
     "contact",
     """  <section class="hero">
@@ -750,7 +754,7 @@ admin_body = """  <section class="hero">
 pages.append((
     ROOT / "admin" / "index.html",
     1,
-    "Demand desk | Prashant Properties",
+    "Demand desk",
     "Internal demand dashboard.",
     "contact",
     admin_body,

@@ -1,6 +1,6 @@
 {
-  "name": "Prashant Properties",
-  "short_name": "Prashant",
+  "name": "Properties",
+  "short_name": "Properties",
   "start_url": "./",
   "display": "browser",
   "background_color": "#16130f",
