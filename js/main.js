@@ -701,6 +701,85 @@
     }
   }
 
+  function setupAdminMapExpand(form) {
+    const shell = $("#admin-map-shell");
+    const btn = $("#admin-map-full-btn");
+    if (!shell || !btn || form._adminMapExpandBound) {
+      return;
+    }
+    form._adminMapExpandBound = true;
+    let isFull = false;
+    let pushedHash = false;
+
+    function resizeEditor() {
+      if (form._editorMap && window.google && window.google.maps) {
+        google.maps.event.trigger(form._editorMap, "resize");
+      }
+    }
+
+    function applyFull(next) {
+      isFull = next;
+      shell.classList.toggle("is-full", isFull);
+      document.body.classList.toggle("is-map-full", isFull);
+      btn.setAttribute("aria-expanded", isFull ? "true" : "false");
+      btn.textContent = isFull ? "Close map" : "Full map";
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(resizeEditor);
+      });
+    }
+
+    function openFull() {
+      if (isFull) {
+        return;
+      }
+      applyFull(true);
+      if (location.hash !== "#admin-map-full") {
+        history.pushState({ adminMapFull: true }, "", "#admin-map-full");
+        pushedHash = true;
+      }
+      btn.focus();
+    }
+
+    function closeFull(fromPop) {
+      if (!isFull) {
+        return;
+      }
+      applyFull(false);
+      if (!fromPop && pushedHash && location.hash === "#admin-map-full") {
+        pushedHash = false;
+        history.back();
+      }
+    }
+
+    btn.addEventListener("click", function () {
+      if (isFull) {
+        closeFull(false);
+      } else {
+        openFull();
+      }
+    });
+
+    window.addEventListener("popstate", function () {
+      if (isFull && location.hash !== "#admin-map-full") {
+        pushedHash = false;
+        closeFull(true);
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && isFull) {
+        closeFull(false);
+      }
+    });
+
+    window.addEventListener("resize", resizeEditor);
+    window.addEventListener("orientationchange", resizeEditor);
+
+    if (location.hash === "#admin-map-full") {
+      applyFull(true);
+    }
+  }
+
   function setupNav() {
     const toggle = $(".nav-toggle");
     const nav = $("#site-nav");
@@ -939,6 +1018,16 @@
       form._editorPoints = editorPoints;
       form._editorMarkers = editorMarkers;
       form._editorPolygon = editorPolygon;
+      const hint = $("#admin-map-hint");
+      if (hint) {
+        if (!editorPoints.length) {
+          hint.textContent = "Tap to add a corner";
+        } else if (editorPoints.length === 1) {
+          hint.textContent = "1 point. Tap to add another";
+        } else {
+          hint.textContent = editorPoints.length + " points. Tap to add another";
+        }
+      }
     }
 
     function addPoint(point) {
@@ -1100,6 +1189,7 @@
         addPoint({ lat: event.latLng.lat(), lng: event.latLng.lng() });
       });
       redrawEditor();
+      setupAdminMapExpand(form);
     });
 
     if (loadSel) {

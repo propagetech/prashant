@@ -709,10 +709,16 @@ admin_body = """  <section class="hero">
                   <button type="button" class="btn btn-secondary" id="admin-map-find">Find on map</button>
                 </span>
               </label>
-              <div id="admin-editor-map" role="region" aria-label="Listing map editor"></div>
-              <div class="coord-toolbar">
-                <button type="button" class="btn btn-secondary" id="admin-undo-point">Undo last point</button>
-                <button type="button" class="btn btn-secondary" id="admin-clear-points">Clear points</button>
+              <div class="map-shell admin-map-shell" id="admin-map-shell">
+                <div class="map-chrome">
+                  <p class="map-hint" id="admin-map-hint">Tap to add a corner</p>
+                  <button type="button" class="map-full-btn" id="admin-map-full-btn" aria-expanded="false" aria-controls="admin-editor-map">Full map</button>
+                </div>
+                <div id="admin-editor-map" role="region" aria-label="Listing map editor"></div>
+                <div class="coord-toolbar admin-map-tools">
+                  <button type="button" class="btn btn-secondary" id="admin-undo-point">Undo last point</button>
+                  <button type="button" class="btn btn-secondary" id="admin-clear-points">Clear points</button>
+                </div>
               </div>
               <label>Latitude, longitude
                 <textarea id="admin-coords" rows="6" placeholder="12.9321855, 77.8694882"></textarea>

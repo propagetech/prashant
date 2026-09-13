@@ -784,11 +784,33 @@ body.is-map-full .consent-banner {
   flex: 1 1 12rem;
 }
 
+.admin-map-shell {
+  min-height: 22rem;
+}
+
 #admin-editor-map {
   min-height: 22rem;
   height: min(32rem, 70vh);
-  border: 1px solid var(--line);
+  border: 0;
   background: var(--bg-elev);
+}
+
+.admin-map-tools {
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: max(var(--space-3), env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  justify-content: center;
+}
+
+.admin-map-shell.is-full .map-hint {
+  display: block;
+}
+
+.admin-map-shell.is-full #admin-editor-map {
+  height: 100dvh;
+  min-height: 100dvh;
 }
 
 .coord-toolbar {
