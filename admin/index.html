@@ -79,7 +79,7 @@
         </table></div>
         <form class="form admin-editor" id="admin-property-form">
           <h2>Add or edit a listing</h2>
-          <p class="muted">Click the map to drop corners, search a Google Maps place, or paste latitude and longitude pairs. One point makes a location box. Two points make a rectangle. Three or more make a parcel outline. Do not enter survey numbers, deeds, or Drive links.</p>
+          <p class="muted">Paste a Google Maps place URL to drop a pin. The public map shows that pin until someone clicks it. Click the map to add boundary corners only if you have a traced outline. Two points make a rectangle. Three or more make a parcel outline. Do not enter survey numbers, deeds, or Drive links.</p>
           <label>Load existing
             <select id="admin-load-id">
               <option value="">New listing</option>
@@ -125,7 +125,7 @@
                 <input id="admin-prop-price" maxlength="80" autocomplete="off" placeholder="Call for price">
               </label>
               <label>Google Maps place URL
-                <input id="admin-prop-place" type="url" maxlength="500" autocomplete="off">
+                <input id="admin-prop-place" type="url" maxlength="800" autocomplete="off">
               </label>
               <label>Boundary note
                 <textarea id="admin-prop-note" maxlength="400"></textarea>

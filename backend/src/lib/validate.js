@@ -79,15 +79,45 @@ function parsePoint(value) {
   return { lat, lng };
 }
 
-function boxAround(center) {
-  const dLat = 0.00072;
-  const dLng = 0.00072 / Math.max(0.2, Math.cos((center.lat * Math.PI) / 180));
-  return [
-    { lat: center.lat + dLat, lng: center.lng - dLng },
-    { lat: center.lat + dLat, lng: center.lng + dLng },
-    { lat: center.lat - dLat, lng: center.lng + dLng },
-    { lat: center.lat - dLat, lng: center.lng - dLng },
-  ];
+export function parseMapsPlace(url) {
+  const text = String(url || "");
+  const place3d = text.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  const at = text.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)([mz]))?/i);
+  const dest = text.match(/[?&](?:destination|q|query)=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/i);
+  let lat = null;
+  let lng = null;
+  if (place3d) {
+    lat = Number(place3d[1]);
+    lng = Number(place3d[2]);
+  } else if (at) {
+    lat = Number(at[1]);
+    lng = Number(at[2]);
+  } else if (dest) {
+    lat = Number(dest[1]);
+    lng = Number(dest[2]);
+  }
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return null;
+  }
+  let zoom = 17;
+  if (at && at[3] && at[4]) {
+    const amount = Number(at[3]);
+    if (at[4].toLowerCase() === "z" && Number.isFinite(amount)) {
+      zoom = Math.min(21, Math.max(3, Math.round(amount)));
+    } else if (at[4].toLowerCase() === "m" && Number.isFinite(amount)) {
+      zoom = amount <= 40 ? 20 : amount <= 80 ? 19 : amount <= 150 ? 18 : 17;
+    }
+  }
+  const nameMatch = text.match(/\/maps\/place\/([^/?@]+)/);
+  let name = "";
+  if (nameMatch) {
+    try {
+      name = decodeURIComponent(nameMatch[1].replace(/\+/g, " ")).trim();
+    } catch (err) {
+      name = nameMatch[1].replace(/\+/g, " ").trim();
+    }
+  }
+  return { lat, lng, zoom, name };
 }
 
 function rectangleFrom(a, b) {
@@ -104,17 +134,14 @@ function rectangleFrom(a, b) {
 }
 
 function boundaryFromPoints(points, given) {
-  if (Array.isArray(given) && given.length >= 3) {
-    return given.map(parsePoint).filter(Boolean);
-  }
-  if (points.length === 1) {
-    return boxAround(points[0]);
+  if (points.length >= 3) {
+    return points;
   }
   if (points.length === 2) {
     return rectangleFrom(points[0], points[1]);
   }
-  if (points.length >= 3) {
-    return points;
+  if (Array.isArray(given) && given.length >= 3) {
+    return given.map(parsePoint).filter(Boolean);
   }
   return [];
 }
@@ -141,7 +168,7 @@ export function validateProperty(body) {
     return { error: "Title is required" };
   }
   const location = clip(body.location, 200);
-  const placeUrl = clip(body.placeUrl, 500);
+  const placeUrl = clip(body.placeUrl, 800);
   const fields = [title, location, clip(body.area, 80), clip(body.message, 200), placeUrl];
   if (fields.some((value) => FORBIDDEN_LISTING.test(value))) {
     return { error: "Do not include survey numbers, deeds, or Drive links" };
@@ -156,15 +183,24 @@ export function validateProperty(body) {
   const points = Array.isArray(body.points)
     ? body.points.map(parsePoint).filter(Boolean)
     : [];
+  const fromUrl = parseMapsPlace(placeUrl);
   const boundary = boundaryFromPoints(points, body.boundary);
-  if (boundary.length < 3 || boundary.length > 80) {
-    return { error: "Add at least one map point, or three to 80 boundary corners" };
+  if (boundary.length > 80) {
+    return { error: "Use at most 80 boundary corners" };
   }
   const center =
-    parsePoint(body.center) || {
-      lat: boundary.reduce((sum, point) => sum + point.lat, 0) / boundary.length,
-      lng: boundary.reduce((sum, point) => sum + point.lng, 0) / boundary.length,
-    };
+    parsePoint(body.center) ||
+    (fromUrl ? { lat: fromUrl.lat, lng: fromUrl.lng } : null) ||
+    points[0] ||
+    (boundary.length
+      ? {
+          lat: boundary.reduce((sum, point) => sum + point.lat, 0) / boundary.length,
+          lng: boundary.reduce((sum, point) => sum + point.lng, 0) / boundary.length,
+        }
+      : null);
+  if (!center) {
+    return { error: "Paste a Google Maps place URL or add a map point" };
+  }
   let listingDate = clip(body.listingDate, 10);
   if (!listingDate) {
     listingDate = new Date().toISOString().slice(0, 10);
@@ -177,10 +213,6 @@ export function validateProperty(body) {
     return { error: "Directions link must be a Google Maps URL" };
   }
   let boundaryNote = clip(body.boundaryNote, 400);
-  if (!boundaryNote && points.length === 1) {
-    boundaryNote =
-      "Temporary location box around the map pin. Not a traced or surveyed parcel boundary.";
-  }
   if (!boundaryNote && points.length === 2) {
     boundaryNote =
       "Rectangle from two map points. Not a traced or surveyed parcel boundary.";

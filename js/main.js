@@ -138,6 +138,66 @@
     return new URLSearchParams(location.search).get("id") || "";
   }
 
+  function parseMapsPlace(url) {
+    const text = String(url || "");
+    const place3d = text.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+    const at = text.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?)([mz]))?/i);
+    const dest = text.match(/[?&](?:destination|q|query)=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/i);
+    let lat = null;
+    let lng = null;
+    if (place3d) {
+      lat = Number(place3d[1]);
+      lng = Number(place3d[2]);
+    } else if (at) {
+      lat = Number(at[1]);
+      lng = Number(at[2]);
+    } else if (dest) {
+      lat = Number(dest[1]);
+      lng = Number(dest[2]);
+    }
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return null;
+    }
+    let zoom = 17;
+    if (at && at[3] && at[4]) {
+      const amount = Number(at[3]);
+      if (at[4].toLowerCase() === "z" && Number.isFinite(amount)) {
+        zoom = Math.min(21, Math.max(3, Math.round(amount)));
+      } else if (at[4].toLowerCase() === "m" && Number.isFinite(amount)) {
+        zoom = amount <= 40 ? 20 : amount <= 80 ? 19 : amount <= 150 ? 18 : 17;
+      }
+    }
+    const nameMatch = text.match(/\/maps\/place\/([^/?@]+)/);
+    let name = "";
+    if (nameMatch) {
+      try {
+        name = decodeURIComponent(nameMatch[1].replace(/\+/g, " ")).trim();
+      } catch (err) {
+        name = nameMatch[1].replace(/\+/g, " ").trim();
+      }
+    }
+    return { lat: lat, lng: lng, zoom: zoom, name: name };
+  }
+
+  function pinOf(prop) {
+    if (prop && prop.center && Number.isFinite(Number(prop.center.lat))) {
+      return { lat: Number(prop.center.lat), lng: Number(prop.center.lng) };
+    }
+    const fromUrl = prop ? parseMapsPlace(prop.placeUrl) : null;
+    if (fromUrl) {
+      return { lat: fromUrl.lat, lng: fromUrl.lng };
+    }
+    if (prop && prop.boundary && prop.boundary[0]) {
+      return { lat: Number(prop.boundary[0].lat), lng: Number(prop.boundary[0].lng) };
+    }
+    return null;
+  }
+
+  function outlineOf(prop) {
+    const path = prop && prop.boundary ? prop.boundary : [];
+    return path.length >= 3 ? path : null;
+  }
+
   let catalog = { properties: [] };
   let statusOverlay = {};
   let activePropertyId = "";
@@ -372,7 +432,7 @@
       return;
     }
     const drawable = properties.filter(function (p) {
-      return p.boundary && p.boundary.length >= 3;
+      return Boolean(pinOf(p));
     });
     if (!drawable.length) {
       if (empty) {
@@ -414,11 +474,13 @@
       const focus = drawable.find(function (p) {
         return p.id === focusId;
       }) || drawable[0];
+      const focusPin = pinOf(focus);
+      const focusPlace = parseMapsPlace(focus.placeUrl);
       const coarse = window.matchMedia("(pointer: coarse)").matches;
       const compact = window.innerWidth < 900;
       const map = new google.maps.Map(mapEl, {
-        center: focus.center || focus.boundary[0],
-        zoom: drawable.length === 1 ? 17 : 12,
+        center: focusPin,
+        zoom: drawable.length === 1 ? (focusPlace && focusPlace.zoom) || 17 : 12,
         mapTypeControl: !compact,
         mapTypeControlOptions: {
           style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
@@ -437,26 +499,70 @@
       const info = new google.maps.InfoWindow({
         maxWidth: Math.min(320, window.innerWidth - 48),
       });
-      drawable.forEach(function (prop) {
+      let activeOutline = null;
+
+      function hideOutline() {
+        if (activeOutline) {
+          activeOutline.setMap(null);
+          activeOutline = null;
+        }
+      }
+
+      function openInfo(prop, at) {
+        recordView(prop.id);
+        startPresence(prop.id);
+        info.setContent(popupHtml(prop));
+        info.setPosition(at);
+        info.open({ map: map });
+        loadPropertyStats(prop.id);
+      }
+
+      function showListing(prop, at) {
+        hideOutline();
         const colors = statusStyle(prop.status);
-        const polygon = new google.maps.Polygon({
-          paths: prop.boundary,
-          strokeColor: colors.strokeColor,
-          strokeOpacity: 0.95,
-          strokeWeight: 2,
-          fillColor: colors.fillColor,
-          fillOpacity: 0.28,
-          clickable: true,
+        const outline = outlineOf(prop);
+        if (outline) {
+          activeOutline = new google.maps.Polygon({
+            paths: outline,
+            strokeColor: colors.strokeColor,
+            strokeOpacity: 0.95,
+            strokeWeight: 2,
+            fillColor: colors.fillColor,
+            fillOpacity: 0.28,
+            clickable: true,
+            map: map,
+          });
+          activeOutline.addListener("click", function (event) {
+            openInfo(prop, event.latLng);
+          });
+        }
+        openInfo(prop, at || pinOf(prop));
+      }
+
+      drawable.forEach(function (prop) {
+        const pin = pinOf(prop);
+        const colors = statusStyle(prop.status);
+        const marker = new google.maps.Marker({
+          position: pin,
           map: map,
+          title: prop.title || prop.id,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 9,
+            fillColor: colors.strokeColor,
+            fillOpacity: 1,
+            strokeColor: "#16130f",
+            strokeWeight: 2,
+          },
         });
-        polygon.addListener("click", function (event) {
-          recordView(prop.id);
-          startPresence(prop.id);
-          info.setContent(popupHtml(prop));
-          info.setPosition(event.latLng);
-          info.open({ map: map });
-          loadPropertyStats(prop.id);
+        marker.addListener("click", function () {
+          showListing(prop, pin);
         });
+      });
+      info.addListener("closeclick", hideOutline);
+      map.addListener("click", function () {
+        hideOutline();
+        info.close();
       });
       setupMapExpand();
     });
@@ -968,8 +1074,10 @@
     const search = $("#admin-map-search");
     let editorMap = form._editorMap || null;
     let editorMarkers = form._editorMarkers || [];
+    let editorPin = form._editorPin || null;
     let editorPolygon = form._editorPolygon || null;
     let editorPoints = form._editorPoints || [];
+    let placePin = form._placePin || null;
     const liveIds = {};
     (apiIds || []).forEach(function (id) {
       liveIds[id] = true;
@@ -988,9 +1096,34 @@
         marker.setMap(null);
       });
       editorMarkers = [];
+      if (editorPin) {
+        editorPin.setMap(null);
+        editorPin = null;
+      }
       if (editorPolygon) {
         editorPolygon.setMap(null);
         editorPolygon = null;
+      }
+      if (placePin) {
+        editorPin = new google.maps.Marker({
+          position: placePin,
+          map: editorMap,
+          title: "Listing pin",
+          draggable: true,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 9,
+            fillColor: "#c4a574",
+            fillOpacity: 1,
+            strokeColor: "#16130f",
+            strokeWeight: 2,
+          },
+        });
+        editorPin.addListener("dragend", function () {
+          const pos = editorPin.getPosition();
+          placePin = { lat: pos.lat(), lng: pos.lng() };
+          form._placePin = placePin;
+        });
       }
       editorPoints.forEach(function (point, index) {
         const marker = new google.maps.Marker({
@@ -1036,17 +1169,39 @@
       coords.value = formatCoordText(editorPoints);
       form._editorPoints = editorPoints;
       form._editorMarkers = editorMarkers;
+      form._editorPin = editorPin;
+      form._placePin = placePin;
       form._editorPolygon = editorPolygon;
       const hint = $("#admin-map-hint");
       if (hint) {
-        if (!editorPoints.length) {
-          hint.textContent = "Tap to add a corner";
+        if (!editorPoints.length && placePin) {
+          hint.textContent = "Pin set. Tap to add a boundary";
+        } else if (!editorPoints.length) {
+          hint.textContent = "Paste a Maps URL or tap a corner";
         } else if (editorPoints.length === 1) {
-          hint.textContent = "1 point. Tap to add another";
+          hint.textContent = "1 corner. Tap to add another";
         } else {
-          hint.textContent = editorPoints.length + " points. Tap to add another";
+          hint.textContent = editorPoints.length + " corners. Tap to add another";
         }
       }
+    }
+
+    function applyPlaceUrl(url) {
+      const parsed = parseMapsPlace(url);
+      if (!parsed) {
+        return false;
+      }
+      placePin = { lat: parsed.lat, lng: parsed.lng };
+      form._placePin = placePin;
+      if (editorMap) {
+        editorMap.panTo(placePin);
+        editorMap.setZoom(parsed.zoom || 17);
+      }
+      if (!$("#admin-prop-location").value && parsed.name) {
+        $("#admin-prop-location").value = parsed.name;
+      }
+      redrawEditor();
+      return true;
     }
 
     function addPoint(point) {
@@ -1072,13 +1227,16 @@
       $("#admin-prop-place").value = prop.placeUrl || "";
       $("#admin-prop-note").value = prop.boundaryNote || "";
       $("#admin-prop-hidden").checked = Boolean(prop.hidden);
+      const fromUrl = parseMapsPlace(prop.placeUrl);
+      placePin = pinOf(prop);
+      form._placePin = placePin;
       editorPoints = (prop.boundary && prop.boundary.length ? prop.boundary : []).map(function (point) {
         return { lat: Number(point.lat), lng: Number(point.lng) };
       });
       redrawEditor();
-      if (editorMap && editorPoints[0]) {
-        editorMap.panTo(editorPoints[0]);
-        editorMap.setZoom(16);
+      if (editorMap && placePin) {
+        editorMap.panTo(placePin);
+        editorMap.setZoom((fromUrl && fromUrl.zoom) || 17);
       }
       $("#admin-delete-prop").hidden = false;
     }
@@ -1089,6 +1247,8 @@
         loadSel.value = "";
       }
       editorPoints = [];
+      placePin = null;
+      form._placePin = null;
       redrawEditor();
       $("#admin-delete-prop").hidden = true;
       $("#admin-prop-hidden").checked = false;
@@ -1216,6 +1376,9 @@
       editorMap.addListener("click", function (event) {
         addPoint({ lat: event.latLng.lat(), lng: event.latLng.lng() });
       });
+      if ($("#admin-prop-place") && $("#admin-prop-place").value) {
+        applyPlaceUrl($("#admin-prop-place").value);
+      }
       redrawEditor();
     });
 
@@ -1225,6 +1388,8 @@
         if (!id) {
           form.reset();
           editorPoints = [];
+          placePin = null;
+          form._placePin = null;
           redrawEditor();
           $("#admin-delete-prop").hidden = true;
           setStatus(true, "");
@@ -1251,6 +1416,22 @@
       editorPoints = parseCoordText(coords.value);
       redrawEditor();
     });
+    const placeInput = $("#admin-prop-place");
+    if (placeInput) {
+      placeInput.addEventListener("change", function () {
+        if (placeInput.value && !applyPlaceUrl(placeInput.value)) {
+          setStatus(false, "Could not read a pin from that Maps URL. Use a place link with coordinates.");
+        }
+      });
+      placeInput.addEventListener("paste", function () {
+        window.setTimeout(function () {
+          if (placeInput.value) {
+            applyPlaceUrl(placeInput.value);
+          }
+        }, 0);
+      });
+    }
+
     $("#admin-map-find").addEventListener("click", function () {
       const query = (search.value || "").trim();
       if (!query || !window.google || !window.google.maps) {
@@ -1264,11 +1445,13 @@
         }
         const loc = results[0].geometry.location;
         const point = { lat: loc.lat(), lng: loc.lng() };
+        placePin = point;
+        form._placePin = placePin;
         if (editorMap) {
           editorMap.panTo(point);
           editorMap.setZoom(17);
         }
-        addPoint(point);
+        redrawEditor();
         if (!$("#admin-prop-location").value) {
           $("#admin-prop-location").value = results[0].formatted_address || query;
         }
@@ -1281,6 +1464,7 @@
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
       const points = editorPoints.length ? editorPoints : parseCoordText(coords.value);
+      const parsedPlace = parseMapsPlace($("#admin-prop-place").value);
       const payload = {
         id: ($("#admin-prop-id").value || "").trim().toUpperCase(),
         title: $("#admin-prop-title").value,
@@ -1296,6 +1480,7 @@
         placeUrl: $("#admin-prop-place").value,
         boundaryNote: $("#admin-prop-note").value,
         hidden: $("#admin-prop-hidden").checked,
+        center: placePin || (parsedPlace ? { lat: parsedPlace.lat, lng: parsedPlace.lng } : null),
         points: points,
       };
       const existing = liveIds[payload.id];
@@ -1315,7 +1500,7 @@
           form._onSaved();
         }
       } catch (err) {
-        setStatus(false, err.status === 409 ? "That property ID already exists. Load it to edit." : "Could not save this listing. Check the ID, title, and map points.");
+        setStatus(false, err.status === 409 ? "That property ID already exists. Load it to edit." : "Could not save this listing. Check the ID, title, Maps URL, or map points.");
       }
     });
 

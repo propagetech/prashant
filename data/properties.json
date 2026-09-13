@@ -14,17 +14,12 @@
       "priceGuidance": "Call for price",
       "location": "Aditya Ankur, as pinned on Google Maps",
       "center": { "lat": 12.9321855, "lng": 77.8694882 },
-      "boundary": [
-        { "lat": 12.932905, "lng": 77.868751 },
-        { "lat": 12.932905, "lng": 77.870225 },
-        { "lat": 12.931466, "lng": 77.870225 },
-        { "lat": 12.931466, "lng": 77.868751 }
-      ],
+      "boundary": [],
       "mapsUrl": "https://www.google.com/maps/dir/?api=1&destination=12.9321855,77.8694882",
       "placeUrl": "https://www.google.com/maps/place/ADITYA+ANKUR/@12.9321855,77.8694882,17z/data=!3m1!1e3!4m6!3m5!1s0x3bae0b1a90315471:0xebdc3c86d5a02e23!8m2!3d12.9321855!4d77.8694882!16s%2Fg%2F11sns1cy2h",
       "photos": [],
       "pimPdf": "",
-      "boundaryNote": "Temporary location box around the Google Maps pin. Not a traced or surveyed parcel boundary."
+      "boundaryNote": ""
     }
   ]
 }

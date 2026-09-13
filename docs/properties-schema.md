@@ -19,12 +19,7 @@
       "priceGuidance": "Call for price",
       "location": "Village, taluk, district",
       "center": { "lat": 13.0, "lng": 77.6 },
-      "boundary": [
-        { "lat": 13.0, "lng": 77.6 },
-        { "lat": 13.0, "lng": 77.61 },
-        { "lat": 12.99, "lng": 77.61 },
-        { "lat": 12.99, "lng": 77.6 }
-      ],
+      "boundary": [],
       "mapsUrl": "https://www.google.com/maps/dir/?api=1&destination=13.0,77.6",
       "photos": ["imgs/listings/BLR-PLT-01/01.jpg"],
       "pimPdf": ""
@@ -34,3 +29,5 @@
 ```
 
 Allowed `status` values: `Available`, `Under offer`, `Sold`. Live status and admin-published parcels from the API win over this file.
+
+The public map shows a pin from `center` or a Google Maps `placeUrl`. `boundary` is optional. The outline appears only after someone clicks that pin.

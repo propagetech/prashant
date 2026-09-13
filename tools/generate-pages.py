@@ -122,7 +122,7 @@ home_schema = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": "Prashant Properties",
-    "description": "Public map of land parcels for sale. Click a boundary to inspect a listing, then enquire, request documents, or submit an offer.",
+    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire, request documents, or submit an offer.",
 }
 
 faq_qas = [
@@ -163,7 +163,7 @@ pages.append((
     ROOT / "index.html",
     0,
     "Properties for sale | Prashant Properties",
-    "Map of land parcels for sale. Click a coloured boundary to inspect a listing.",
+    "Map of land parcels for sale. Tap a pin to inspect a listing.",
     "properties",
     """  <section class="hero">
     <div class="wrap">
@@ -180,7 +180,7 @@ pages.append((
     <div class="map-bleed">
       <div class="map-shell" id="map-shell">
         <div class="map-chrome">
-          <p class="map-hint">Tap a coloured boundary</p>
+          <p class="map-hint">Tap a pin</p>
           <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
         </div>
         <a class="map-jump" href="#listings">See listings</a>
@@ -452,7 +452,7 @@ pages.append((
       <ol class="steps">
         <li>
           <h2>Open the map</h2>
-          <p>Every published parcel is a coloured boundary. Click inside the land, not only a pin.</p>
+          <p>Every published parcel is a pin. Click the pin. If a boundary has been added, the outline appears then.</p>
         </li>
         <li>
           <h2>Read the public card</h2>
@@ -650,7 +650,7 @@ admin_body = """  <section class="hero">
         </table></div>
         <form class="form admin-editor" id="admin-property-form">
           <h2>Add or edit a listing</h2>
-          <p class="muted">Click the map to drop corners, search a Google Maps place, or paste latitude and longitude pairs. One point makes a location box. Two points make a rectangle. Three or more make a parcel outline. Do not enter survey numbers, deeds, or Drive links.</p>
+          <p class="muted">Paste a Google Maps place URL to drop a pin. The public map shows that pin until someone clicks it. Click the map to add boundary corners only if you have a traced outline. Two points make a rectangle. Three or more make a parcel outline. Do not enter survey numbers, deeds, or Drive links.</p>
           <label>Load existing
             <select id="admin-load-id">
               <option value="">New listing</option>
@@ -696,7 +696,7 @@ admin_body = """  <section class="hero">
                 <input id="admin-prop-price" maxlength="80" autocomplete="off" placeholder="Call for price">
               </label>
               <label>Google Maps place URL
-                <input id="admin-prop-place" type="url" maxlength="500" autocomplete="off">
+                <input id="admin-prop-place" type="url" maxlength="800" autocomplete="off">
               </label>
               <label>Boundary note
                 <textarea id="admin-prop-note" maxlength="400"></textarea>
