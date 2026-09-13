@@ -325,13 +325,16 @@
       (prop.boundaryNote
         ? "</p><p>" + escapeHtml(prop.boundaryNote)
         : "") +
-      "</p><p><strong>Listed:</strong> " +
+      '</p><details class="more-facts">' +
+      '<summary aria-label="More listing details">...</summary>' +
+      '<div class="more-facts-body">' +
+      "<p><strong>Listed:</strong> " +
       escapeHtml(formatDate(prop.listingDate)) +
       '</p><p><strong>Views:</strong> <span id="views-' +
       escapeHtml(prop.id) +
       '">Loading</span></p><p><strong>Active viewers:</strong> <span id="live-' +
       escapeHtml(prop.id) +
-      '">Loading</span></p><div class="popup-actions">' +
+      '">Loading</span></p></div></details><div class="popup-actions">' +
       (prop.mapsUrl
         ? '<a class="btn btn-secondary" href="' +
           escapeHtml(prop.mapsUrl) +

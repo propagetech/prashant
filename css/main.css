@@ -929,6 +929,39 @@ textarea {
   gap: var(--space-3);
 }
 
+.more-facts {
+  margin: var(--space-3) 0 0;
+}
+
+.more-facts summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+  color: var(--gold);
+  font: 600 1.15rem/1 var(--font-body);
+  letter-spacing: 0.16em;
+}
+
+.more-facts summary::-webkit-details-marker,
+.more-facts summary::marker {
+  display: none;
+  content: "";
+}
+
+.more-facts .more-facts-body,
+.more-facts .stats-row {
+  margin-top: var(--space-3);
+}
+
+.property-popup .more-facts summary {
+  color: hsl(32 30% 28%);
+}
+
 .popup-actions,
 .action-row {
   display: flex;

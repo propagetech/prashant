@@ -37,11 +37,14 @@
       <p class="lede" id="prop-lede">Open a listing from the map. This page shows the public summary only.</p>
       <p><span class="status status-available" id="prop-status" hidden></span></p>
       <div class="card-grid" id="prop-facts"></div>
-      <div class="stats-row muted" id="prop-stats">
-        <p>Listed: <span id="stat-listed">Not published</span></p>
-        <p>Property-page views: <span id="stat-views">Not yet counted</span></p>
-        <p>Active viewers: <span id="stat-live">Defined as sessions with a heartbeat in the last five minutes</span></p>
-      </div>
+      <details class="more-facts" id="prop-stats">
+        <summary aria-label="More listing details">...</summary>
+        <div class="stats-row muted">
+          <p>Listed: <span id="stat-listed">Not published</span></p>
+          <p>Property-page views: <span id="stat-views">Not yet counted</span></p>
+          <p>Active viewers: <span id="stat-live">Defined as sessions with a heartbeat in the last five minutes</span></p>
+        </div>
+      </details>
       <div class="hero-actions action-row" id="prop-actions"></div>
     </div>
   </section>
