@@ -618,6 +618,83 @@ admin_body = """  <section class="hero">
         <div class="kpi-grid" id="admin-kpis"></div>
         <h2>Listings</h2>
         <div style="overflow:auto"><table id="admin-listings"><thead><tr><th>ID</th><th>Status</th><th>Views</th><th>Active</th><th>Enquiries</th><th>Docs</th><th>Visits</th><th>Offers</th><th>Set status</th></tr></thead><tbody></tbody></table></div>
+        <form class="form admin-editor" id="admin-property-form">
+          <h2>Add or edit a listing</h2>
+          <p class="muted">Click the map to drop corners, search a Google Maps place, or paste latitude and longitude pairs. One point makes a location box. Two points make a rectangle. Three or more make a parcel outline. Do not enter survey numbers, deeds, or Drive links.</p>
+          <label>Load existing
+            <select id="admin-load-id">
+              <option value="">New listing</option>
+            </select>
+          </label>
+          <div class="admin-editor-grid">
+            <div class="admin-editor-fields">
+              <label>Property ID
+                <input id="admin-prop-id" name="id" required maxlength="40" autocomplete="off" placeholder="BLR-PLT-02">
+              </label>
+              <label>Title
+                <input id="admin-prop-title" name="title" required maxlength="120" autocomplete="off">
+              </label>
+              <label>Location text
+                <input id="admin-prop-location" name="location" maxlength="200" autocomplete="off">
+              </label>
+              <label>Status
+                <select id="admin-prop-status">
+                  <option>Available</option>
+                  <option>Under offer</option>
+                  <option>Sold</option>
+                </select>
+              </label>
+              <label>Listing date
+                <input id="admin-prop-date" type="date">
+              </label>
+              <label>Extent
+                <input id="admin-prop-area" maxlength="80" autocomplete="off">
+              </label>
+              <label>Dimensions
+                <input id="admin-prop-dimensions" maxlength="80" autocomplete="off">
+              </label>
+              <label>Road access
+                <input id="admin-prop-road" maxlength="120" autocomplete="off">
+              </label>
+              <label>Land type
+                <input id="admin-prop-type" maxlength="80" autocomplete="off">
+              </label>
+              <label>Facing
+                <input id="admin-prop-facing" maxlength="40" autocomplete="off">
+              </label>
+              <label>Price guidance
+                <input id="admin-prop-price" maxlength="80" autocomplete="off" placeholder="Call for price">
+              </label>
+              <label>Google Maps place URL
+                <input id="admin-prop-place" type="url" maxlength="500" autocomplete="off">
+              </label>
+              <label>Boundary note
+                <textarea id="admin-prop-note" maxlength="400"></textarea>
+              </label>
+            </div>
+            <div class="admin-editor-map-col">
+              <label>Find a place
+                <span class="admin-search-row">
+                  <input id="admin-map-search" maxlength="200" autocomplete="off" placeholder="Place name or address">
+                  <button type="button" class="btn btn-secondary" id="admin-map-find">Find on map</button>
+                </span>
+              </label>
+              <div id="admin-editor-map" role="region" aria-label="Listing map editor"></div>
+              <div class="coord-toolbar">
+                <button type="button" class="btn btn-secondary" id="admin-undo-point">Undo last point</button>
+                <button type="button" class="btn btn-secondary" id="admin-clear-points">Clear points</button>
+              </div>
+              <label>Latitude, longitude
+                <textarea id="admin-coords" rows="6" placeholder="12.9321855, 77.8694882"></textarea>
+              </label>
+            </div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary" type="submit">Publish listing</button>
+            <button class="btn btn-secondary" type="button" id="admin-delete-prop" hidden>Remove from catalogue</button>
+          </div>
+          <p class="form-status" role="status"></p>
+        </form>
         <h2>Cities (internal)</h2>
         <div style="overflow:auto"><table id="admin-cities"><thead><tr><th>City</th><th>Region</th><th>Views</th></tr></thead><tbody></tbody></table></div>
         <h2>Channels</h2>

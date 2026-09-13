@@ -3,7 +3,7 @@ export function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "content-type,x-admin-token",
-    "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PATCH,DELETE,OPTIONS",
     "Content-Type": "application/json; charset=utf-8",
   };
 }

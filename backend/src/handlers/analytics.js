@@ -9,11 +9,12 @@ export async function handler(event) {
   if (!isAuthorized(event)) {
     return fail(401, "Unauthorized");
   }
-  const [subs, views, presence, status] = await Promise.all([
+  const [subs, views, presence, status, listings] = await Promise.all([
     client.send(new ScanCommand({ TableName: tables().submissions })),
     client.send(new ScanCommand({ TableName: tables().views })),
     client.send(new ScanCommand({ TableName: tables().presence })),
     client.send(new ScanCommand({ TableName: tables().status })),
+    client.send(new ScanCommand({ TableName: tables().properties })),
   ]);
   const cutoff = Date.now() - 5 * 60 * 1000;
   const byProp = {};
@@ -44,6 +45,11 @@ export async function handler(event) {
     const r = row(item.propertyId || "unspecified");
     if (r[item.formType] !== undefined) {
       r[item.formType] += 1;
+    }
+  });
+  (listings.Items || []).forEach((item) => {
+    if (item.id) {
+      row(item.id).status = item.status || row(item.id).status;
     }
   });
   (status.Items || []).forEach((item) => {

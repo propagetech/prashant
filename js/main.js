@@ -148,9 +148,43 @@
     return Object.assign({}, raw, overlay.status ? { status: overlay.status } : {});
   }
 
+  function mergeCatalog(fileProps, apiProps) {
+    const byId = {};
+    (fileProps || []).forEach(function (prop) {
+      if (prop && prop.id) {
+        byId[prop.id] = prop;
+      }
+    });
+    (apiProps || []).forEach(function (prop) {
+      if (prop && prop.id) {
+        byId[prop.id] = Object.assign({}, byId[prop.id] || {}, prop);
+      }
+    });
+    return Object.keys(byId)
+      .sort()
+      .map(function (id) {
+        return mergedProperty(byId[id]);
+      });
+  }
+
   async function loadCatalog() {
-    const res = await fetch(assetUrl("data/properties.json"), { cache: "no-store" });
-    catalog = await res.json();
+    let fileProps = [];
+    try {
+      const res = await fetch(assetUrl("data/properties.json"), { cache: "no-store" });
+      catalog = await res.json();
+      fileProps = catalog.properties || [];
+    } catch (err) {
+      catalog = { properties: [] };
+    }
+    let apiProps = [];
+    try {
+      const live = await apiSend("/properties", { method: "GET" });
+      if (live && live.items) {
+        apiProps = live.items;
+      }
+    } catch (err) {
+      apiProps = [];
+    }
     try {
       const overlay = await apiSend("/listing-status", { method: "GET" });
       if (overlay && overlay.items) {
@@ -161,7 +195,7 @@
     } catch (err) {
       statusOverlay = {};
     }
-    return catalog.properties.map(mergedProperty);
+    return mergeCatalog(fileProps, apiProps);
   }
 
   function renderList(properties) {
@@ -360,7 +394,7 @@
     if (fallback) {
       fallback.hidden = true;
     }
-    window.prashantMapsReady = function () {
+    loadMapsScript(function () {
       const focus = drawable.find(function (p) {
         return p.id === focusId;
       }) || drawable[0];
@@ -409,15 +443,28 @@
         });
       });
       setupMapExpand();
-    };
+    });
+  }
+
+  const mapsWaiters = [];
+
+  function loadMapsScript(onReady) {
+    if (!cfg.MAPS_API_KEY) {
+      return;
+    }
     if (window.google && window.google.maps) {
-      window.prashantMapsReady();
+      onReady();
       return;
     }
-    const existing = document.querySelector("script[data-prashant-maps]");
-    if (existing) {
+    mapsWaiters.push(onReady);
+    if (document.querySelector("script[data-prashant-maps]")) {
       return;
     }
+    window.prashantMapsReady = function () {
+      mapsWaiters.splice(0).forEach(function (fn) {
+        fn();
+      });
+    };
     const s = document.createElement("script");
     s.src =
       "https://maps.googleapis.com/maps/api/js?key=" +
@@ -764,6 +811,317 @@
     });
   }
 
+  function parseCoordText(text) {
+    return String(text || "")
+      .split(/\n/)
+      .map(function (line) {
+        const parts = line.split(/[,\s;]+/).filter(Boolean);
+        if (parts.length < 2) {
+          return null;
+        }
+        const lat = Number(parts[0]);
+        const lng = Number(parts[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return null;
+        }
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+          return null;
+        }
+        return { lat: lat, lng: lng };
+      })
+      .filter(Boolean);
+  }
+
+  function formatCoordText(points) {
+    return (points || [])
+      .map(function (point) {
+        return point.lat + ", " + point.lng;
+      })
+      .join("\n");
+  }
+
+  function setupPropertyEditor(listings, apiIds, onSaved) {
+    const form = $("#admin-property-form");
+    const mapEl = $("#admin-editor-map");
+    if (!form || !mapEl) {
+      return;
+    }
+    form._listings = listings || [];
+    form._onSaved = onSaved;
+    const status = $(".form-status", form);
+    const loadSel = $("#admin-load-id");
+    const coords = $("#admin-coords");
+    const search = $("#admin-map-search");
+    let editorMap = form._editorMap || null;
+    let editorMarkers = form._editorMarkers || [];
+    let editorPolygon = form._editorPolygon || null;
+    let editorPoints = form._editorPoints || [];
+    const liveIds = {};
+    (apiIds || []).forEach(function (id) {
+      liveIds[id] = true;
+    });
+
+    function setStatus(ok, message) {
+      status.className = "form-status " + (ok ? "is-ok" : "is-error");
+      status.textContent = message;
+    }
+
+    function redrawEditor() {
+      if (!editorMap) {
+        return;
+      }
+      editorMarkers.forEach(function (marker) {
+        marker.setMap(null);
+      });
+      editorMarkers = [];
+      if (editorPolygon) {
+        editorPolygon.setMap(null);
+        editorPolygon = null;
+      }
+      editorPoints.forEach(function (point, index) {
+        const marker = new google.maps.Marker({
+          position: point,
+          map: editorMap,
+          label: String(index + 1),
+          draggable: true,
+        });
+        marker.addListener("dragend", function () {
+          const pos = marker.getPosition();
+          editorPoints[index] = { lat: pos.lat(), lng: pos.lng() };
+          coords.value = formatCoordText(editorPoints);
+          redrawEditor();
+        });
+        editorMarkers.push(marker);
+      });
+      if (editorPoints.length >= 3) {
+        editorPolygon = new google.maps.Polygon({
+          paths: editorPoints,
+          strokeColor: "#c4a574",
+          strokeOpacity: 0.95,
+          strokeWeight: 2,
+          fillColor: "#8a7349",
+          fillOpacity: 0.28,
+          map: editorMap,
+        });
+      } else if (editorPoints.length === 2) {
+        editorPolygon = new google.maps.Rectangle({
+          bounds: {
+            north: Math.max(editorPoints[0].lat, editorPoints[1].lat),
+            south: Math.min(editorPoints[0].lat, editorPoints[1].lat),
+            east: Math.max(editorPoints[0].lng, editorPoints[1].lng),
+            west: Math.min(editorPoints[0].lng, editorPoints[1].lng),
+          },
+          strokeColor: "#c4a574",
+          strokeOpacity: 0.95,
+          strokeWeight: 2,
+          fillColor: "#8a7349",
+          fillOpacity: 0.28,
+          map: editorMap,
+        });
+      }
+      coords.value = formatCoordText(editorPoints);
+      form._editorPoints = editorPoints;
+      form._editorMarkers = editorMarkers;
+      form._editorPolygon = editorPolygon;
+    }
+
+    function addPoint(point) {
+      editorPoints.push(point);
+      redrawEditor();
+      if (editorMap) {
+        editorMap.panTo(point);
+      }
+    }
+
+    function fillForm(prop) {
+      $("#admin-prop-id").value = prop.id || "";
+      $("#admin-prop-title").value = prop.title || "";
+      $("#admin-prop-location").value = prop.location || "";
+      $("#admin-prop-status").value = prop.status || "Available";
+      $("#admin-prop-date").value = prop.listingDate || "";
+      $("#admin-prop-area").value = prop.area || "";
+      $("#admin-prop-dimensions").value = prop.dimensions || "";
+      $("#admin-prop-road").value = prop.roadAccess || "";
+      $("#admin-prop-type").value = prop.landType || "";
+      $("#admin-prop-facing").value = prop.facing || "";
+      $("#admin-prop-price").value = prop.priceGuidance || "";
+      $("#admin-prop-place").value = prop.placeUrl || "";
+      $("#admin-prop-note").value = prop.boundaryNote || "";
+      editorPoints = (prop.boundary && prop.boundary.length ? prop.boundary : []).map(function (point) {
+        return { lat: Number(point.lat), lng: Number(point.lng) };
+      });
+      redrawEditor();
+      if (editorMap && editorPoints[0]) {
+        editorMap.panTo(editorPoints[0]);
+        editorMap.setZoom(16);
+      }
+      $("#admin-delete-prop").hidden = !liveIds[prop.id];
+    }
+
+    if (loadSel) {
+      const current = loadSel.value;
+      loadSel.innerHTML =
+        '<option value="">New listing</option>' +
+        (listings || [])
+          .map(function (prop) {
+            return (
+              '<option value="' +
+              escapeHtml(prop.id) +
+              '">' +
+              escapeHtml(prop.id + " · " + (prop.title || "Untitled")) +
+              "</option>"
+            );
+          })
+          .join("");
+      loadSel.value = current;
+    }
+
+    if (form._editorReady) {
+      return;
+    }
+    form._editorReady = true;
+
+    loadMapsScript(function () {
+      editorMap = new google.maps.Map(mapEl, {
+        center: { lat: 12.9716, lng: 77.5946 },
+        zoom: 11,
+        mapTypeControl: true,
+        streetViewControl: false,
+        fullscreenControl: false,
+        clickableIcons: false,
+        gestureHandling: "greedy",
+      });
+      form._editorMap = editorMap;
+      editorMap.addListener("click", function (event) {
+        addPoint({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+      });
+      redrawEditor();
+    });
+
+    if (loadSel) {
+      loadSel.addEventListener("change", function () {
+        const id = loadSel.value;
+        if (!id) {
+          form.reset();
+          editorPoints = [];
+          redrawEditor();
+          $("#admin-delete-prop").hidden = true;
+          setStatus(true, "");
+          return;
+        }
+        const prop = (form._listings || []).find(function (row) {
+          return row.id === id;
+        });
+        if (prop) {
+          fillForm(prop);
+        }
+      });
+    }
+
+    $("#admin-undo-point").addEventListener("click", function () {
+      editorPoints.pop();
+      redrawEditor();
+    });
+    $("#admin-clear-points").addEventListener("click", function () {
+      editorPoints = [];
+      redrawEditor();
+    });
+    coords.addEventListener("change", function () {
+      editorPoints = parseCoordText(coords.value);
+      redrawEditor();
+    });
+    $("#admin-map-find").addEventListener("click", function () {
+      const query = (search.value || "").trim();
+      if (!query || !window.google || !window.google.maps) {
+        return;
+      }
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: query }, function (results, geocodeStatus) {
+        if (geocodeStatus !== "OK" || !results || !results[0]) {
+          setStatus(false, "Google Maps could not find that place.");
+          return;
+        }
+        const loc = results[0].geometry.location;
+        const point = { lat: loc.lat(), lng: loc.lng() };
+        if (editorMap) {
+          editorMap.panTo(point);
+          editorMap.setZoom(17);
+        }
+        addPoint(point);
+        if (!$("#admin-prop-location").value) {
+          $("#admin-prop-location").value = results[0].formatted_address || query;
+        }
+        if (!$("#admin-prop-title").value) {
+          $("#admin-prop-title").value = query;
+        }
+      });
+    });
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const points = editorPoints.length ? editorPoints : parseCoordText(coords.value);
+      const payload = {
+        id: ($("#admin-prop-id").value || "").trim().toUpperCase(),
+        title: $("#admin-prop-title").value,
+        location: $("#admin-prop-location").value,
+        status: $("#admin-prop-status").value,
+        listingDate: $("#admin-prop-date").value,
+        area: $("#admin-prop-area").value,
+        dimensions: $("#admin-prop-dimensions").value,
+        roadAccess: $("#admin-prop-road").value,
+        landType: $("#admin-prop-type").value,
+        facing: $("#admin-prop-facing").value,
+        priceGuidance: $("#admin-prop-price").value,
+        placeUrl: $("#admin-prop-place").value,
+        boundaryNote: $("#admin-prop-note").value,
+        points: points,
+      };
+      const existing = liveIds[payload.id];
+      try {
+        const saved = await apiSend(existing ? "/properties/" + encodeURIComponent(payload.id) : "/properties", {
+          method: existing ? "PATCH" : "POST",
+          headers: tokenHeader(),
+          body: JSON.stringify(payload),
+        });
+        if (!saved || !saved.item) {
+          throw new Error("save failed");
+        }
+        liveIds[saved.item.id] = true;
+        setStatus(true, existing ? "Listing updated on the live map." : "Listing published to the live map.");
+        $("#admin-delete-prop").hidden = false;
+        if (typeof form._onSaved === "function") {
+          form._onSaved();
+        }
+      } catch (err) {
+        setStatus(false, err.status === 409 ? "That property ID already exists. Load it to edit." : "Could not save this listing. Check the ID, title, and map points.");
+      }
+    });
+
+    $("#admin-delete-prop").addEventListener("click", async function () {
+      const id = ($("#admin-prop-id").value || "").trim();
+      if (!id || !liveIds[id.toUpperCase()]) {
+        return;
+      }
+      if (!window.confirm("Remove " + id + " from the live catalogue?")) {
+        return;
+      }
+      try {
+        await apiSend("/properties/" + encodeURIComponent(id), {
+          method: "DELETE",
+          headers: tokenHeader(),
+        });
+        delete liveIds[id.toUpperCase()];
+        form.reset();
+        editorPoints = [];
+        redrawEditor();
+        $("#admin-delete-prop").hidden = true;
+        setStatus(true, "Removed from the live catalogue.");
+      } catch (err) {
+        setStatus(false, "Could not remove that listing.");
+      }
+    });
+  }
+
   function tokenHeader() {
     const token = sessionStorage.getItem("prashant-admin-token") || "";
     return { "x-admin-token": token };
@@ -785,8 +1143,24 @@
         method: "GET",
         headers: tokenHeader(),
       });
+      let catalogProps = [];
+      let apiItems = [];
+      try {
+        catalogProps = await loadCatalog();
+        const live = await apiSend("/properties", { method: "GET" });
+        apiItems = (live && live.items) || [];
+      } catch (err) {
+        catalogProps = [];
+      }
       app.hidden = false;
       login.hidden = true;
+      setupPropertyEditor(
+        catalogProps,
+        apiItems.map(function (row) {
+          return row.id;
+        }),
+        loadDash
+      );
       const kpis = $("#admin-kpis");
       kpis.innerHTML = [
         ["Unique views", summary.totals.uniqueViews],

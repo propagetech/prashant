@@ -709,6 +709,59 @@ body.is-map-full .consent-banner {
   gap: var(--space-4);
 }
 
+.admin-editor {
+  max-width: none;
+  margin-top: var(--space-7);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--line);
+}
+
+.admin-editor-grid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.admin-editor-fields,
+.admin-editor-map-col {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.admin-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.admin-search-row input {
+  flex: 1 1 12rem;
+}
+
+#admin-editor-map {
+  min-height: 22rem;
+  height: min(32rem, 70vh);
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+}
+
+.coord-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (min-width: 900px) {
+  .admin-editor-grid {
+    grid-template-columns: minmax(16rem, 24rem) minmax(20rem, 1fr);
+    align-items: start;
+  }
+
+  .admin-editor-map-col {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-3));
+  }
+}
+
 label {
   display: grid;
   gap: var(--space-1);

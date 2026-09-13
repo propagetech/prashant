@@ -1,6 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
+  DeleteCommand,
   GetCommand,
   PutCommand,
   QueryCommand,
@@ -17,7 +18,8 @@ export function tables() {
     views: process.env.VIEWS_TABLE,
     presence: process.env.PRESENCE_TABLE,
     status: process.env.STATUS_TABLE,
+    properties: process.env.PROPERTIES_TABLE,
   };
 }
 
-export { client, GetCommand, PutCommand, QueryCommand, ScanCommand };
+export { client, DeleteCommand, GetCommand, PutCommand, QueryCommand, ScanCommand };

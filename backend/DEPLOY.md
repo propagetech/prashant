@@ -25,6 +25,7 @@ Copy the `ApiBaseUrl` output into `js/config.js` as `API_BASE`. Pin CORS to `htt
 ```bash
 API=https://REPLACE.execute-api.ap-south-1.amazonaws.com
 curl -s "$API/listing-status"
+curl -s "$API/properties"
 curl -s -X POST "$API/submit" -H 'content-type: application/json' \
   -d '{"formType":"enquiry","name":"Test","mobile":"9999999999","email":"a@b.co","consent":true,"website_hp":""}'
 curl -s "$API/submissions" -H "x-admin-token: $(cat .admin-token.txt)"

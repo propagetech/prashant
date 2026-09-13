@@ -12,7 +12,7 @@ python3 -m http.server 8080
 
 Open http://127.0.0.1:8080/
 
-Listings come from [data/properties.json](data/properties.json). It ships empty until real parcels are supplied. Do not commit title deeds or public Drive links.
+Listings come from [data/properties.json](data/properties.json) and from admin-published records on the API. Do not commit title deeds or public Drive links.
 
 ## Configure
 

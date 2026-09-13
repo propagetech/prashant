@@ -2,8 +2,8 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Prashant Properties backend. HTTP API -> Lambda Node 24 arm64 -> DynamoDB + optional SES.
-  Public: submit, views, presence, stats, listing-status GET.
-  Admin token: submissions, analytics, listing-status PATCH.
+  Public: submit, views, presence, stats, listing-status GET, properties GET.
+  Admin token: submissions, analytics, listing-status PATCH, properties write.
 
 Parameters:
   SenderEmail:
@@ -49,6 +49,7 @@ Globals:
         VIEWS_TABLE: !Ref ViewsTable
         PRESENCE_TABLE: !Ref PresenceTable
         STATUS_TABLE: !Ref StatusTable
+        PROPERTIES_TABLE: !Ref PropertiesTable
 
 Resources:
   HttpApi:
@@ -61,6 +62,7 @@ Resources:
           - GET
           - POST
           - PATCH
+          - DELETE
           - OPTIONS
         AllowHeaders:
           - content-type
@@ -127,6 +129,18 @@ Resources:
           AttributeType: S
       KeySchema:
         - AttributeName: propertyId
+          KeyType: HASH
+
+  PropertiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: prashant-properties
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
           KeyType: HASH
 
   SubmitFunction:
@@ -257,6 +271,44 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref PresenceTable
         - DynamoDBReadPolicy:
+            TableName: !Ref StatusTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PropertiesTable
+
+  PropertiesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/properties.handler
+      Events:
+        List:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /properties
+            Method: GET
+        Create:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /properties
+            Method: POST
+        Update:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /properties/{id}
+            Method: PATCH
+        Remove:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /properties/{id}
+            Method: DELETE
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PropertiesTable
+        - DynamoDBCrudPolicy:
             TableName: !Ref StatusTable
 
 Outputs:

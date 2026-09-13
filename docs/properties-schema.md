@@ -1,6 +1,6 @@
-# Public properties.json schema
+# Public listing schema
 
-`data/properties.json` is the only public listing file. Keep legal documents, Drive URLs, survey numbers, and owner names out of it.
+`data/properties.json` is the file-based catalogue. The admin demand desk can also publish listings to DynamoDB (`GET /properties`). The public map merges both; API records win on the same ID. Keep legal documents, Drive URLs, survey numbers, and owner names out of both.
 
 ```json
 {
@@ -33,4 +33,4 @@
 }
 ```
 
-Allowed `status` values: `Available`, `Under offer`, `Sold`. Live overrides come from the API overlay and win over this file.
+Allowed `status` values: `Available`, `Under offer`, `Sold`. Live status and admin-published parcels from the API win over this file.
