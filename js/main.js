@@ -489,6 +489,17 @@
     s.async = true;
     s.defer = true;
     s.setAttribute("data-prashant-maps", "1");
+    s.addEventListener("error", function () {
+      const fallback = $("#map-fallback");
+      if (fallback) {
+        fallback.hidden = false;
+      }
+      const editorStatus = $("#admin-property-form .form-status");
+      if (editorStatus) {
+        editorStatus.className = "form-status is-error";
+        editorStatus.textContent = "Google Maps failed to load. Check the API key referrers for this domain.";
+      }
+    });
     document.head.appendChild(s);
   }
 
@@ -1206,7 +1217,6 @@
         addPoint({ lat: event.latLng.lat(), lng: event.latLng.lng() });
       });
       redrawEditor();
-      setupAdminMapExpand(form);
     });
 
     if (loadSel) {

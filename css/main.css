@@ -409,7 +409,7 @@ button.btn {
 .map-chrome,
 .map-jump {
   position: absolute;
-  z-index: 2;
+  z-index: 6;
 }
 
 .map-chrome {
