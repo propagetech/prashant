@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Property dossier | Prashant Properties</title>
   <meta name="description" content="Public summary for a land parcel: extent, location, listing date, and next steps.">
-  <meta name="theme-color" content="#142433">
+  <meta name="theme-color" content="#16130f">
   <link rel="icon" href="../imgs/icon.svg" type="image/svg+xml">
-  <link rel="preload" href="../fonts/manrope-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="../fonts/spectral-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/jost-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../css/main.css">
   
 </head>
@@ -53,6 +53,12 @@
           <h2>Select a listing</h2>
           <p>This page needs a property id in the address, for example <code>?id=BLR-PLT-01</code>.</p>
           <a class="btn btn-primary" href="../">Back to the map</a>
+        </div>
+        <div class="map-fallback" id="map-fallback" hidden>
+          <p class="eyebrow">Map</p>
+          <h2>Open this pin on Google Maps</h2>
+          <p>The interactive boundary map needs a restricted Maps key. Until then, use the place link.</p>
+          <p id="map-place-link"></p>
         </div>
       </div>
       <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>

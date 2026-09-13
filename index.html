@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Properties for sale | Prashant Properties</title>
   <meta name="description" content="Map of land parcels for sale. Click a coloured boundary to inspect a listing.">
-  <meta name="theme-color" content="#142433">
+  <meta name="theme-color" content="#16130f">
   <link rel="icon" href="imgs/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="preload" href="fonts/manrope-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/spectral-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/jost-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/main.css">
   
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "RealEstateAgent", "name": "Prashant Properties", "description": "Public map of land parcels for sale. Click a boundary to inspect a listing, then enquire, request documents, or submit an offer."}</script>
@@ -34,9 +34,9 @@
 <main>
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow">Properties for sale</p>
-      <h1>Inspect each parcel on the map</h1>
-      <p class="lede">Click a coloured land boundary, not just a pin. Each listing uses a public reference ID, photos, and listing date. Title papers stay off this page until you request them.</p>
+      <p class="eyebrow">Private catalogue</p>
+      <h1>Land presented with discretion</h1>
+      <p class="lede">A considered viewing for substantial holdings. Inspect the map, open a discreet dossier, and request papers privately. Public pages never show survey numbers or title files.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#listings">View listings</a>
         <a class="btn btn-secondary" href="how-it-works/">How it works</a>
@@ -59,7 +59,8 @@
         <div class="map-fallback" id="map-fallback" hidden>
           <p class="eyebrow">Map</p>
           <h2>Interactive map needs a Maps key</h2>
-          <p>Listings still appear as cards below. The coloured boundary map is enabled when a restricted Google Maps key is configured.</p>
+          <p>Listings still appear as cards below. Until a restricted Google Maps key is configured, open the place pin.</p>
+          <p id="map-place-link"></p>
         </div>
       </div>
       <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>

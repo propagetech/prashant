@@ -127,9 +127,9 @@
       return { strokeColor: "#64748b", fillColor: "#94a3b8" };
     }
     if (status === "Under offer") {
-      return { strokeColor: "#b45309", fillColor: "#f59e0b" };
+      return { strokeColor: "#c4893c", fillColor: "#8a5a24" };
     }
-    return { strokeColor: "#0f766e", fillColor: "#14b8a6" };
+    return { strokeColor: "#c4a574", fillColor: "#8a7349" };
   }
 
   function queryId() {
@@ -210,6 +210,9 @@
       escapeHtml(prop.location || "") +
       "</p><p><strong>Extent:</strong> " +
       escapeHtml(prop.area || "On request") +
+      (prop.boundaryNote
+        ? "</p><p>" + escapeHtml(prop.boundaryNote)
+        : "") +
       "</p><p><strong>Listed:</strong> " +
       escapeHtml(formatDate(prop.listingDate)) +
       '</p><p><strong>Views:</strong> <span id="views-' +
@@ -332,6 +335,24 @@
       if (fallback) {
         fallback.hidden = false;
       }
+      const placeBox = $("#map-place-link");
+      if (placeBox) {
+        const withPlace = drawable.filter(function (p) {
+          return p.placeUrl || p.mapsUrl;
+        });
+        placeBox.innerHTML = withPlace
+          .map(function (p) {
+            const href = p.placeUrl || p.mapsUrl;
+            return (
+              '<a class="btn btn-primary" href="' +
+              escapeHtml(href) +
+              '" target="_blank" rel="noopener">' +
+              escapeHtml(p.title || p.id) +
+              " on Google Maps</a>"
+            );
+          })
+          .join(" ");
+      }
       return;
     }
     if (fallback) {
@@ -416,6 +437,7 @@
       ["Land type", prop.landType],
       ["Facing", prop.facing],
       ["Price guidance", prop.priceGuidance],
+      ["Boundary", prop.boundaryNote],
     ];
     const box = $("#prop-facts");
     box.innerHTML = facts
@@ -428,6 +450,9 @@
       .join("");
     const actions = $("#prop-actions");
     actions.innerHTML =
+      (prop.placeUrl
+        ? '<a class="btn btn-secondary" href="' + escapeHtml(prop.placeUrl) + '" target="_blank" rel="noopener">Open Google Maps pin</a>'
+        : "") +
       (prop.mapsUrl
         ? '<a class="btn btn-secondary" href="' + escapeHtml(prop.mapsUrl) + '" target="_blank" rel="noopener">Get directions</a>'
         : "") +

@@ -6,8 +6,8 @@
  * Empty CONTACT_EMAIL: mailto fallbacks stay disabled; the API form still works.
  */
 window.PRASHANT = window.PRASHANT || {};
-window.PRASHANT.API_BASE = "";
-window.PRASHANT.MAPS_API_KEY = "";
+window.PRASHANT.API_BASE = "https://qa1lggny98.execute-api.ap-south-1.amazonaws.com";
+window.PRASHANT.MAPS_API_KEY = "AIzaSyAJdmK-kXZcOwJIVopmvTsHI8qMJqJ5f64";
 window.PRASHANT.RECAPTCHA_SITE_KEY = "";
-window.PRASHANT.CONTACT_EMAIL = "";
+window.PRASHANT.CONTACT_EMAIL = "propertiesofprashant@gmail.com";
 window.PRASHANT.EXCLUDE_OWNER = false;

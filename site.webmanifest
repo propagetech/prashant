@@ -3,8 +3,8 @@
   "short_name": "Prashant",
   "start_url": "./",
   "display": "browser",
-  "background_color": "#f8f4ee",
-  "theme_color": "#142433",
+  "background_color": "#16130f",
+  "theme_color": "#16130f",
   "icons": [
     {
       "src": "imgs/icon.svg",

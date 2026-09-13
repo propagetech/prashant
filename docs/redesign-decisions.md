@@ -57,13 +57,14 @@ Menu is the buyer journey, not an org chart: Properties (map), How it works, FAQ
 
 ## Art direction
 
-- **Register:** Premium / architectural
-- **Type:** Spectral (headings 600/700) + Manrope (body 400/500/600/700), self-hosted woff2. Not Fraunces + Inter.
-- **Palette:** Navy ink `hsl(215 45% 14%)`, cream field `hsl(40 24% 97%)`, teal accent `hsl(175 55% 22%)` (map stroke `#0f766e`, fill `#14b8a6`), gold supporting `hsl(36 50% 32%)`. Locked AA pairs in `css/main.css` comments.
+- **Register:** Ultra-luxury / private-client (substantial land holdings)
+- **Type:** Cormorant Garamond (headings 500/600) + Jost (body 300/400/500), self-hosted woff2.
+- **Palette:** Espresso field `hsl(32 18% 7%)`, ivory ink `hsl(38 35% 93%)`, champagne `hsl(39 42% 68%)`, map stroke `#c4a574`. Locked AA pairs in `tools/contrast-audit.mjs`.
 - **Motion:** Subtle; map is the signature; `prefers-reduced-motion` respected.
-- **Signature element:** Full-width parcel map with filled polygons.
-- **Brand:** Text wordmark "Prashant Properties" on a light chip until a real logo file is supplied. Do not invent a mark.
-- **Icons:** Numbered steps (original), not Noun Project (not fetched). No stock photos passed off as project photos.
+- **Signature element:** Full-width parcel map with champagne polygons.
+- **Brand:** Text wordmark until a real logo file is supplied. Do not invent a mark.
+- **Icons:** Original thin-line SVGs in champagne. No stock photos passed off as project photos.
+- Do not publish a rupee figure unless the owner supplies it for that parcel.
 
 ## CDN exceptions (only these)
 
