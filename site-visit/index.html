@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request a site visit | Prashant Properties</title>
+  <meta name="description" content="Ask to inspect a listed parcel in person.">
+  <meta name="theme-color" content="#142433">
+  <link rel="icon" href="../imgs/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="../fonts/manrope-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/spectral-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../css/main.css">
+  
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap topbar">
+    <a class="brand" href="../">Prashant Properties</a>
+    <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Primary">
+      <ul>
+          <li><a href="../">Properties</a></li>
+          <li><a href="../how-it-works/">How it works</a></li>
+          <li><a href="../faq/">FAQ</a></li>
+          <li><a href="../contact/" aria-current="page">Contact</a></li>
+          <li><a href="../request-documents/">Request documents</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary header-cta" href="../request-documents/">Request documents</a>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Buyers</p>
+      <h1>Request a site visit</h1>
+      <p class="lede">Tell us which parcel and a preferred date. A page view is not a site visit. We confirm access before you travel.</p>
+      <form class="form js-lead-form" method="post" data-form-type="site-visit" action="../contact/">
+        <input class="hp" type="text" name="website_hp" tabindex="-1" autocomplete="off">
+        <label>Property ID
+          <input name="propertyId" id="field-property-id" required maxlength="40" placeholder="BLR-PLT-01">
+        </label>
+        <label>Name
+          <input name="name" required maxlength="80" autocomplete="name">
+        </label>
+        <label>Mobile number
+          <input name="mobile" required maxlength="20" autocomplete="tel">
+        </label>
+        <label>Email
+          <input name="email" type="email" required maxlength="120" autocomplete="email">
+        </label>
+        <label>Preferred site-visit date
+          <input name="visitDate" type="date">
+        </label>
+<label>Buyer type
+          <select name="buyerType">
+            <option value="">Select</option>
+            <option>Self-use</option>
+            <option>Investor</option>
+            <option>Broker</option>
+          </select>
+        </label>
+        <label>Message
+          <textarea name="message" maxlength="2000"></textarea>
+        </label>
+        <label class="consent"><input type="checkbox" name="consent" value="yes" required> I agree to be contacted about this property and to the processing described in the privacy notice. This box is not pre-ticked.</label>
+        <div class="g-recaptcha" data-sitekey=""></div>
+        <button class="btn btn-primary" type="submit">Request visit</button>
+        <p class="form-status" role="status"></p>
+        <p class="muted js-mailto-fallback" hidden></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="footer-brand">Prashant Properties</p>
+      <p>Independent land listings. Public reference IDs only. Title papers stay off this site until a request is approved.</p>
+    </div>
+    <div>
+      <p class="eyebrow">Explore</p>
+      <p><a href="../">Properties map</a><br>
+      <a href="../how-it-works/">How it works</a><br>
+      <a href="../faq/">FAQ</a><br>
+      <a href="../contact/">Contact</a></p>
+    </div>
+    <div>
+      <p class="eyebrow">Legal</p>
+      <p><a href="../privacy/">Privacy</a><br>
+      <a href="../terms/">Terms</a><br>
+      <a href="../disclaimer/">Disclaimer</a></p>
+    </div>
+  </div>
+  <div class="wrap"><p class="muted">Boundary maps are for location reference only.</p></div>
+</footer>
+<div class="consent-banner" id="consent-banner" hidden>
+  <div class="wrap">
+    <p>We use a first-party session id for unique listing views and active-viewer counts. Optional analytics cookies stay off until you agree. See the <a href="../privacy/">privacy notice</a>.</p>
+    <div class="action-row">
+      <button type="button" class="btn btn-primary" data-consent="essential">Essential only</button>
+      <button type="button" class="btn btn-gold" data-consent="all">Agree to analytics</button>
+    </div>
+  </div>
+</div>
+<script src="../js/config.js" defer></script>
+<script src="../js/main.js" defer></script>
+</body>
+</html>

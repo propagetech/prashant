@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Properties for sale | Prashant Properties</title>
+  <meta name="description" content="Map of land parcels for sale. Click a coloured boundary to inspect a listing.">
+  <meta name="theme-color" content="#142433">
+  <link rel="icon" href="imgs/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="preload" href="fonts/manrope-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/spectral-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/main.css">
+  
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "RealEstateAgent", "name": "Prashant Properties", "description": "Public map of land parcels for sale. Click a boundary to inspect a listing, then enquire, request documents, or submit an offer."}</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap topbar">
+    <a class="brand" href="./">Prashant Properties</a>
+    <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Primary">
+      <ul>
+          <li><a href="./" aria-current="page">Properties</a></li>
+          <li><a href="how-it-works/">How it works</a></li>
+          <li><a href="faq/">FAQ</a></li>
+          <li><a href="contact/">Contact</a></li>
+          <li><a href="request-documents/">Request documents</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary header-cta" href="request-documents/">Request documents</a>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Properties for sale</p>
+      <h1>Inspect each parcel on the map</h1>
+      <p class="lede">Click a coloured land boundary, not just a pin. Each listing uses a public reference ID, photos, and listing date. Title papers stay off this page until you request them.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#listings">View listings</a>
+        <a class="btn btn-secondary" href="how-it-works/">How it works</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="map-shell">
+        <div id="property-map" role="region" aria-label="Property map"></div>
+        <div class="map-empty" id="map-empty">
+          <p class="eyebrow">Catalogue</p>
+          <h2>Listings are being prepared</h2>
+          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how document access and offers work, or send a general enquiry.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="contact/">Send an enquiry</a>
+            <a class="btn btn-secondary" href="how-it-works/">How it works</a>
+          </div>
+        </div>
+        <div class="map-fallback" id="map-fallback" hidden>
+          <p class="eyebrow">Map</p>
+          <h2>Interactive map needs a Maps key</h2>
+          <p>Listings still appear as cards below. The coloured boundary map is enabled when a restricted Google Maps key is configured.</p>
+        </div>
+      </div>
+      <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
+    </div>
+  </section>
+  <section class="section" id="listings">
+    <div class="wrap">
+      <p class="eyebrow">All parcels</p>
+      <h2>Listings</h2>
+      <p class="muted" id="listings-empty">No public parcels are published yet. This list stays empty until real listing data is added. It does not use sample plots.</p>
+      <ul class="property-list" id="property-list"></ul>
+    </div>
+  </section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="footer-brand">Prashant Properties</p>
+      <p>Independent land listings. Public reference IDs only. Title papers stay off this site until a request is approved.</p>
+    </div>
+    <div>
+      <p class="eyebrow">Explore</p>
+      <p><a href="./">Properties map</a><br>
+      <a href="how-it-works/">How it works</a><br>
+      <a href="faq/">FAQ</a><br>
+      <a href="contact/">Contact</a></p>
+    </div>
+    <div>
+      <p class="eyebrow">Legal</p>
+      <p><a href="privacy/">Privacy</a><br>
+      <a href="terms/">Terms</a><br>
+      <a href="disclaimer/">Disclaimer</a></p>
+    </div>
+  </div>
+  <div class="wrap"><p class="muted">Boundary maps are for location reference only.</p></div>
+</footer>
+<div class="consent-banner" id="consent-banner" hidden>
+  <div class="wrap">
+    <p>We use a first-party session id for unique listing views and active-viewer counts. Optional analytics cookies stay off until you agree. See the <a href="privacy/">privacy notice</a>.</p>
+    <div class="action-row">
+      <button type="button" class="btn btn-primary" data-consent="essential">Essential only</button>
+      <button type="button" class="btn btn-gold" data-consent="all">Agree to analytics</button>
+    </div>
+  </div>
+</div>
+<script src="js/config.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>

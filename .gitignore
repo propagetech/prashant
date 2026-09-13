@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+tools/node_modules/
+.aws-sam/
+backend/.aws-sam/
+backend/samconfig.toml
+backend/.admin-token.txt
+backend/*-token.txt
+.env
+.env.*
+drafts/
+*.log
