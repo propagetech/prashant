@@ -1,2 +1,26 @@
-# prashant
-Prashant Properties
+# Prashant Properties
+
+Public map catalogue of land parcels for sale. Click a coloured boundary to inspect a listing, then enquire, request documents, book a site visit, or submit an offer.
+
+This is a static HTML site (Cloudflare Pages) plus an optional AWS SAM API for leads, unique views, active viewers, and listing status. See [docs/redesign-decisions.md](docs/redesign-decisions.md) and [backend/DEPLOY.md](backend/DEPLOY.md).
+
+## Local preview
+
+```bash
+python3 -m http.server 8080
+```
+
+Open http://127.0.0.1:8080/
+
+Listings come from [data/properties.json](data/properties.json). It ships empty until real parcels are supplied. Do not commit title deeds or public Drive links.
+
+## Configure
+
+Edit [js/config.js](js/config.js) after you have:
+
+- `API_BASE` from `sam deploy`
+- a referrer-restricted Google Maps JavaScript API key
+- reCAPTCHA v2 site key (optional)
+- a public contact email (enables mailto fallback)
+
+Admin: `/admin/` (not in the public menu). Password is the SAM `AdminToken`.

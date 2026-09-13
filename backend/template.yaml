@@ -1,0 +1,265 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Prashant Properties backend. HTTP API -> Lambda Node 24 arm64 -> DynamoDB + optional SES.
+  Public: submit, views, presence, stats, listing-status GET.
+  Admin token: submissions, analytics, listing-status PATCH.
+
+Parameters:
+  SenderEmail:
+    Type: String
+    Default: ""
+    Description: SES from address. Must be verified. Leave empty until go-live.
+  OwnerEmail:
+    Type: String
+    Default: ""
+    Description: Inbox for new-lead notifications.
+  AllowedOrigin:
+    Type: String
+    Default: http://localhost:8080
+    Description: CORS origin for the live site (https://www.example.com).
+  AdminToken:
+    Type: String
+    NoEcho: true
+    Description: Shared password for /admin and x-admin-token.
+  RecaptchaSecret:
+    Type: String
+    NoEcho: true
+    Default: ""
+  EmailsEnabled:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    Architectures: [arm64]
+    MemorySize: 256
+    Timeout: 10
+    Environment:
+      Variables:
+        SENDER_EMAIL: !Ref SenderEmail
+        OWNER_EMAIL: !Ref OwnerEmail
+        ALLOWED_ORIGIN: !Ref AllowedOrigin
+        ADMIN_TOKEN: !Ref AdminToken
+        RECAPTCHA_SECRET: !Ref RecaptchaSecret
+        EMAILS_ENABLED: !Ref EmailsEnabled
+        SUBMISSIONS_TABLE: !Ref SubmissionsTable
+        VIEWS_TABLE: !Ref ViewsTable
+        PRESENCE_TABLE: !Ref PresenceTable
+        STATUS_TABLE: !Ref StatusTable
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowMethods:
+          - GET
+          - POST
+          - PATCH
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+          - x-admin-token
+        MaxAge: 600
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
+
+  SubmissionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: prashant-submissions
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  ViewsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: prashant-views
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: propertyId
+          AttributeType: S
+        - AttributeName: sessionId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: propertyId
+          KeyType: HASH
+        - AttributeName: sessionId
+          KeyType: RANGE
+
+  PresenceTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: prashant-presence
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: propertyId
+          AttributeType: S
+        - AttributeName: sessionId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: propertyId
+          KeyType: HASH
+        - AttributeName: sessionId
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+
+  StatusTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: prashant-listing-status
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: propertyId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: propertyId
+          KeyType: HASH
+
+  SubmitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/submit.handler
+      Events:
+        Submit:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /submit
+            Method: POST
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref SubmissionsTable
+        - Statement:
+            - Effect: Allow
+              Action: [ses:SendEmail, ses:SendRawEmail]
+              Resource: "*"
+
+  SubmissionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/submissions.handler
+      Events:
+        List:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /submissions
+            Method: GET
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref SubmissionsTable
+
+  ViewsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/views.handler
+      Events:
+        View:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /property-view
+            Method: POST
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ViewsTable
+
+  PresenceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/presence.handler
+      Events:
+        Beat:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /presence
+            Method: POST
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref PresenceTable
+
+  StatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/stats.handler
+      Events:
+        Stats:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /property-stats
+            Method: GET
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ViewsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PresenceTable
+
+  ListingStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/listing-status.handler
+      Events:
+        GetAll:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /listing-status
+            Method: GET
+        PatchOne:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /listing-status/{id}
+            Method: PATCH
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StatusTable
+
+  AnalyticsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/analytics.handler
+      Events:
+        Summary:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /analytics-summary
+            Method: GET
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref SubmissionsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ViewsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PresenceTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref StatusTable
+
+Outputs:
+  ApiBaseUrl:
+    Description: HTTP API base URL for js/config.js
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"

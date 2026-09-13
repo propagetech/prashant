@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Property dossier | Prashant Properties</title>
+  <meta name="description" content="Public summary for a land parcel: extent, location, listing date, and next steps.">
+  <meta name="theme-color" content="#142433">
+  <link rel="icon" href="../imgs/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="../fonts/manrope-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/spectral-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../css/main.css">
+  
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap topbar">
+    <a class="brand" href="../">Prashant Properties</a>
+    <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Primary">
+      <ul>
+          <li><a href="../" aria-current="page">Properties</a></li>
+          <li><a href="../how-it-works/">How it works</a></li>
+          <li><a href="../faq/">FAQ</a></li>
+          <li><a href="../contact/">Contact</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary header-cta" href="../request-documents/">Request documents</a>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow" id="prop-id">Property</p>
+      <h1 id="prop-title">Property dossier</h1>
+      <p class="lede" id="prop-lede">Open a listing from the map. This page shows the public summary only.</p>
+      <p><span class="status status-available" id="prop-status" hidden></span></p>
+      <div class="card-grid" id="prop-facts"></div>
+      <div class="stats-row muted" id="prop-stats">
+        <p>Listed: <span id="stat-listed">Not published</span></p>
+        <p>Property-page views: <span id="stat-views">Not yet counted</span></p>
+        <p>Active viewers: <span id="stat-live">Defined as sessions with a heartbeat in the last five minutes</span></p>
+      </div>
+      <div class="hero-actions action-row" id="prop-actions"></div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="map-shell">
+        <div id="property-map" role="region" aria-label="This parcel on the map"></div>
+        <div class="map-empty" id="map-empty">
+          <h2>Select a listing</h2>
+          <p>This page needs a property id in the address, for example <code>?id=BLR-PLT-01</code>.</p>
+          <a class="btn btn-primary" href="../">Back to the map</a>
+        </div>
+      </div>
+      <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
+    </div>
+  </section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="footer-brand">Prashant Properties</p>
+      <p>Independent land listings. Public reference IDs only. Title papers stay off this site until a request is approved.</p>
+    </div>
+    <div>
+      <p class="eyebrow">Explore</p>
+      <p><a href="../">Properties map</a><br>
+      <a href="../how-it-works/">How it works</a><br>
+      <a href="../faq/">FAQ</a><br>
+      <a href="../contact/">Contact</a></p>
+    </div>
+    <div>
+      <p class="eyebrow">Legal</p>
+      <p><a href="../privacy/">Privacy</a><br>
+      <a href="../terms/">Terms</a><br>
+      <a href="../disclaimer/">Disclaimer</a></p>
+    </div>
+  </div>
+  <div class="wrap"><p class="muted">Boundary maps are for location reference only.</p></div>
+</footer>
+<div class="consent-banner" id="consent-banner" hidden>
+  <div class="wrap">
+    <p>We use a first-party session id for unique listing views and active-viewer counts. Optional analytics cookies stay off until you agree. See the <a href="../privacy/">privacy notice</a>.</p>
+    <div class="action-row">
+      <button type="button" class="btn btn-primary" data-consent="essential">Essential only</button>
+      <button type="button" class="btn btn-gold" data-consent="all">Agree to analytics</button>
+    </div>
+  </div>
+</div>
+<script src="../js/config.js" defer></script>
+<script src="../js/main.js" defer></script>
+</body>
+</html>
