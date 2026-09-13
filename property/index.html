@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Property dossier | Prashant Properties</title>
   <meta name="description" content="Public summary for a land parcel: extent, location, listing date, and next steps.">
   <meta name="theme-color" content="#16130f">
@@ -45,9 +45,14 @@
       <div class="hero-actions action-row" id="prop-actions"></div>
     </div>
   </section>
-  <section>
-    <div class="wrap">
-      <div class="map-shell">
+  <section class="map-section" id="map">
+    <div class="map-bleed">
+      <div class="map-shell" id="map-shell">
+        <div class="map-chrome">
+          <p class="map-hint">This parcel on the map</p>
+          <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
+        </div>
+        <a class="map-jump" href="#prop-title">Parcel details</a>
         <div id="property-map" role="region" aria-label="This parcel on the map"></div>
         <div class="map-empty" id="map-empty">
           <h2>Select a listing</h2>
@@ -61,6 +66,8 @@
           <p id="map-place-link"></p>
         </div>
       </div>
+    </div>
+    <div class="wrap">
       <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
     </div>
   </section>

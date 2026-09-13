@@ -95,7 +95,7 @@ def shell(depth, title, description, current, body, extra_head="", schema=None):
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{title}</title>
   <meta name="description" content="{description}">
   <meta name="theme-color" content="#16130f">
@@ -176,9 +176,14 @@ pages.append((
       </div>
     </div>
   </section>
-  <section>
-    <div class="wrap">
-      <div class="map-shell">
+  <section class="map-section" id="map">
+    <div class="map-bleed">
+      <div class="map-shell" id="map-shell">
+        <div class="map-chrome">
+          <p class="map-hint">Tap a coloured boundary</p>
+          <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
+        </div>
+        <a class="map-jump" href="#listings">See listings</a>
         <div id="property-map" role="region" aria-label="Property map"></div>
         <div class="map-empty" id="map-empty">
           <p class="eyebrow">Catalogue</p>
@@ -195,6 +200,8 @@ pages.append((
           <p>Listings still appear as cards below. The coloured boundary map is enabled when a restricted Google Maps key is configured.</p>
         </div>
       </div>
+    </div>
+    <div class="wrap">
       <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
     </div>
   </section>
@@ -232,9 +239,14 @@ pages.append((
       <div class="hero-actions action-row" id="prop-actions"></div>
     </div>
   </section>
-  <section>
-    <div class="wrap">
-      <div class="map-shell">
+  <section class="map-section" id="map">
+    <div class="map-bleed">
+      <div class="map-shell" id="map-shell">
+        <div class="map-chrome">
+          <p class="map-hint">This parcel on the map</p>
+          <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
+        </div>
+        <a class="map-jump" href="#prop-title">Parcel details</a>
         <div id="property-map" role="region" aria-label="This parcel on the map"></div>
         <div class="map-empty" id="map-empty">
           <h2>Select a listing</h2>
@@ -242,6 +254,8 @@ pages.append((
           <a class="btn btn-primary" href="../">Back to the map</a>
         </div>
       </div>
+    </div>
+    <div class="wrap">
       <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
     </div>
   </section>

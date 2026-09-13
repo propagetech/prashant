@@ -8,6 +8,8 @@
   const UTM_KEY = "prashant-utm";
   const HEARTBEAT_MS = 60000;
   const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
+  let mapInstance = null;
+  let mapExpandBound = false;
 
   function $(sel, root) {
     return (root || document).querySelector(sel);
@@ -362,13 +364,29 @@
       const focus = drawable.find(function (p) {
         return p.id === focusId;
       }) || drawable[0];
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const compact = window.innerWidth < 900;
       const map = new google.maps.Map(mapEl, {
         center: focus.center || focus.boundary[0],
         zoom: drawable.length === 1 ? 17 : 12,
-        mapTypeControl: true,
+        mapTypeControl: !compact,
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+          position: google.maps.ControlPosition.LEFT_BOTTOM,
+        },
         streetViewControl: false,
+        fullscreenControl: false,
+        clickableIcons: false,
+        gestureHandling: coarse ? "greedy" : "cooperative",
+        zoomControl: true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        },
       });
-      const info = new google.maps.InfoWindow();
+      mapInstance = map;
+      const info = new google.maps.InfoWindow({
+        maxWidth: Math.min(320, window.innerWidth - 48),
+      });
       drawable.forEach(function (prop) {
         const colors = statusStyle(prop.status);
         const polygon = new google.maps.Polygon({
@@ -390,6 +408,7 @@
           loadPropertyStats(prop.id);
         });
       });
+      setupMapExpand();
     };
     if (window.google && window.google.maps) {
       window.prashantMapsReady();
@@ -515,6 +534,107 @@
     if (prop) {
       recordView(prop.id);
       startPresence(prop.id);
+    }
+  }
+
+  function resizeMap() {
+    if (mapInstance && window.google && window.google.maps) {
+      google.maps.event.trigger(mapInstance, "resize");
+    }
+  }
+
+  function setupMapExpand() {
+    const shell = $("#map-shell");
+    const btn = $("#map-full-btn");
+    const jump = $(".map-jump");
+    if (!shell || !btn || mapExpandBound) {
+      return;
+    }
+    mapExpandBound = true;
+    let isFull = false;
+    let pushedHash = false;
+
+    function applyFull(next) {
+      isFull = next;
+      shell.classList.toggle("is-full", isFull);
+      document.body.classList.toggle("is-map-full", isFull);
+      btn.setAttribute("aria-expanded", isFull ? "true" : "false");
+      btn.textContent = isFull ? "Close map" : "Full map";
+      if (mapInstance) {
+        const coarse = window.matchMedia("(pointer: coarse)").matches;
+        mapInstance.setOptions({
+          gestureHandling: isFull || coarse ? "greedy" : "cooperative",
+        });
+      }
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(resizeMap);
+      });
+    }
+
+    function openFull() {
+      if (isFull) {
+        return;
+      }
+      applyFull(true);
+      if (location.hash !== "#map-full") {
+        history.pushState({ mapFull: true }, "", "#map-full");
+        pushedHash = true;
+      }
+      btn.focus();
+    }
+
+    function closeFull(fromPop) {
+      if (!isFull) {
+        return;
+      }
+      applyFull(false);
+      if (!fromPop && pushedHash && location.hash === "#map-full") {
+        pushedHash = false;
+        history.back();
+      }
+    }
+
+    btn.addEventListener("click", function () {
+      if (isFull) {
+        closeFull(false);
+      } else {
+        openFull();
+      }
+    });
+
+    if (jump) {
+      jump.addEventListener("click", function (event) {
+        if (!isFull) {
+          return;
+        }
+        event.preventDefault();
+        const href = jump.getAttribute("href");
+        closeFull(false);
+        const target = href ? document.querySelector(href) : null;
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    }
+
+    window.addEventListener("popstate", function () {
+      if (isFull && location.hash !== "#map-full") {
+        pushedHash = false;
+        closeFull(true);
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && isFull) {
+        closeFull(false);
+      }
+    });
+
+    window.addEventListener("resize", resizeMap);
+    window.addEventListener("orientationchange", resizeMap);
+
+    if (location.hash === "#map-full") {
+      applyFull(true);
     }
   }
 

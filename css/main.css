@@ -80,6 +80,7 @@
   --space-8: 64px;
   --wrap: 72rem;
   --measure: 40rem;
+  --header-h: 4.5rem;
   --lb-accent: var(--accent-on-dark);
   --lb-muted: hsl(215 12% 70%);
 }
@@ -129,6 +130,11 @@ h3,
   line-height: 1.15;
   font-weight: 500;
   letter-spacing: 0;
+}
+
+h1,
+#listings {
+  scroll-margin-top: calc(var(--header-h) + var(--space-3));
 }
 
 h1 {
@@ -366,9 +372,22 @@ button.btn {
   margin-top: var(--space-5);
 }
 
+.home-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-section {
+  padding: 0;
+}
+
+.map-bleed {
+  width: 100%;
+}
+
 .map-shell {
   position: relative;
-  min-height: 28rem;
+  min-height: 22rem;
   background: var(--bg-elev);
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) + 4px);
@@ -377,14 +396,164 @@ button.btn {
 }
 
 #property-map {
-  min-height: 28rem;
-  height: 70vh;
+  min-height: 22rem;
+  height: min(70vh, 40rem);
+}
+
+.map-chrome,
+.map-jump {
+  position: absolute;
+  z-index: 2;
+}
+
+.map-chrome {
+  top: max(var(--space-3), env(safe-area-inset-top, 0px));
+  left: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  pointer-events: none;
+}
+
+.map-chrome > * {
+  pointer-events: auto;
+}
+
+.map-hint {
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  background: hsl(32 18% 7% / 0.88);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.map-full-btn,
+.map-jump {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid hsl(39 30% 28%);
+  background: hsl(32 18% 7% / 0.92);
+  color: var(--gold);
+  font: 600 0.72rem var(--font-body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.map-full-btn:hover,
+.map-jump:hover {
+  color: var(--accent-bright);
+}
+
+.map-jump {
+  left: 50%;
+  bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+}
+
+.map-shell:has(#map-empty:not([hidden])) .map-chrome,
+.map-shell:has(#map-empty:not([hidden])) .map-jump,
+.map-shell:has(#map-fallback:not([hidden])) .map-chrome,
+.map-shell:has(#map-fallback:not([hidden])) .map-jump {
+  display: none;
 }
 
 .map-shell:has(#map-empty:not([hidden])) #property-map,
 .map-shell:has(#map-fallback:not([hidden])) #property-map {
   height: 0;
   min-height: 0;
+}
+
+.map-shell.is-full {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  min-height: 100dvh;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.map-shell.is-full #property-map {
+  height: 100dvh;
+  min-height: 100dvh;
+}
+
+.map-shell.is-full .map-hint,
+.map-shell.is-full .map-jump {
+  display: none;
+}
+
+body.is-map-full {
+  overflow: hidden;
+}
+
+body.is-map-full .site-header,
+body.is-map-full .consent-banner {
+  visibility: hidden;
+}
+
+@media (max-width: 899px) {
+  .home-main .map-section {
+    order: -1;
+  }
+
+  .home-main .map-shell,
+  .home-main #property-map {
+    min-height: calc(100dvh - var(--header-h));
+    height: calc(100dvh - var(--header-h));
+    border-radius: 0;
+  }
+
+  .home-main .map-shell {
+    border-inline: 0;
+    box-shadow: none;
+  }
+
+  .home-intro {
+    padding-top: var(--space-6);
+  }
+
+  .map-hint {
+    max-width: 11rem;
+  }
+
+  .home-main .map-shell:has(#map-empty:not([hidden])),
+  .home-main .map-shell:has(#map-fallback:not([hidden])),
+  .home-main .map-shell:has(#map-empty:not([hidden])) #property-map,
+  .home-main .map-shell:has(#map-fallback:not([hidden])) #property-map {
+    height: auto;
+    min-height: 0;
+  }
+
+  .home-main .map-shell.is-full,
+  .home-main .map-shell.is-full #property-map {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 900px) {
+  .map-section .map-bleed {
+    width: min(100% - 2rem, var(--wrap));
+    margin-inline: auto;
+  }
+
+  #property-map {
+    height: min(70vh, 44rem);
+    min-height: 28rem;
+  }
 }
 
 .map-empty:not([hidden]),
@@ -639,7 +808,7 @@ textarea {
 }
 
 .property-popup {
-  max-width: 18rem;
+  max-width: min(18rem, 78vw);
   font-family: var(--font-body);
   color: hsl(32 18% 12%);
 }
