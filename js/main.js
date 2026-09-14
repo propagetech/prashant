@@ -1,13 +1,13 @@
 (function () {
   "use strict";
 
-  const cfg = window.PRASHANT || {}; // properties catalogue config
-  const SESSION_KEY = "prashant-session"; // first-party id for property views
-  const CONSENT_KEY = "prashant-consent"; // first-party cookie for analytics agreement
+  const cfg = window.PROPERTIES || {}; // properties catalogue config
+  const SESSION_KEY = "properties-session"; // first-party id for property views
+  const CONSENT_KEY = "properties-consent"; // first-party cookie for analytics agreement
   const CONSENT_MAX_AGE = 365 * 24 * 60 * 60;
-  const OWNER_KEY = "prashant-owner"; // owner-traffic flag, not a public property field
-  const UTM_KEY = "prashant-utm"; // campaign tags on property leads
-  const THEME_KEY = "prashant-theme"; // light or dark, remembered across visits
+  const OWNER_KEY = "properties-owner"; // owner-traffic flag, not a public property field
+  const UTM_KEY = "properties-utm"; // campaign tags on property leads
+  const THEME_KEY = "properties-theme"; // light or dark, remembered across visits
   const THEME_COLOR = { dark: "#16130f", light: "#f8f6f2" };
   const HEARTBEAT_MS = 60000;
   const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
@@ -847,10 +847,10 @@
       return;
     }
     mapsWaiters.push(onReady);
-    if (document.querySelector("script[data-prashant-maps]")) { // property map loader
+    if (document.querySelector("script[data-properties-maps]")) { // property map loader
       return;
     }
-    window.prashantMapsReady = function () { // Maps ready for the properties map
+    window.propertiesMapsReady = function () { // Maps ready for the properties map
       mapsWaiters.splice(0).forEach(function (fn) {
         fn();
       });
@@ -859,10 +859,10 @@
     s.src =
       "https://maps.googleapis.com/maps/api/js?key=" +
       encodeURIComponent(cfg.MAPS_API_KEY) +
-      "&callback=prashantMapsReady";
+      "&callback=propertiesMapsReady";
     s.async = true;
     s.defer = true;
-    s.setAttribute("data-prashant-maps", "1"); // one Maps script for property pins
+    s.setAttribute("data-properties-maps", "1"); // one Maps script for property pins
     s.addEventListener("error", function () {
       const fallback = $("#map-fallback");
       if (fallback) {
@@ -2160,7 +2160,7 @@
   }
 
   function tokenHeader() {
-    const token = sessionStorage.getItem("prashant-admin-token") || ""; // admin token for property desk
+    const token = sessionStorage.getItem("properties-admin-token") || ""; // admin token for property desk
     return { "x-admin-token": token };
   }
 
@@ -2251,7 +2251,7 @@
     }
     login.addEventListener("submit", async function (event) {
       event.preventDefault();
-      sessionStorage.setItem("prashant-admin-token", $("#admin-token").value); // unlocks the properties desk
+      sessionStorage.setItem("properties-admin-token", $("#admin-token").value); // unlocks the properties desk
       try {
         await loadDash();
       } catch (err) {

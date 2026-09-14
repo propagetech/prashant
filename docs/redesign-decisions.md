@@ -1,4 +1,4 @@
-# Prashant Properties: redesign decisions
+# Properties: redesign decisions
 
 Source of truth for facts, IA, art direction, and owner gaps. Do not invent contact details, prices, parcel geometry, testimonials, or credentials.
 
@@ -73,7 +73,7 @@ No Google Fonts, no other script CDNs.
 
 ## AWS (house pattern)
 
-Static site: Cloudflare Pages. API: SAM in `ap-south-1`, stack `prashant-backend`, tables `prashant-*`. Clone of ProPage forms + Motorover SES invariants + Invoices token-gated admin. Not Cloudflare Workers, not S3 website hosting.
+Static site: Cloudflare Pages. API: SAM in `ap-south-1`, stack `properties-backend`, tables `properties-*`. Clone of ProPage forms + Motorover SES invariants + Invoices token-gated admin. Not Cloudflare Workers, not S3 website hosting.
 
 ## Honesty rules
 

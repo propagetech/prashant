@@ -1,4 +1,4 @@
-# Prashant Properties
+# Properties
 
 Public map catalogue of land parcels for sale. Tap a pin to inspect a listing, then enquire, book a site visit, or submit an offer.
 

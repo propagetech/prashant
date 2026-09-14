@@ -1,9 +1,7 @@
 # Generate path-portable HTML pages for the properties microsite.
-# Internal project key is p. Public copy says property or properties.
 from pathlib import Path
 
-# Public brand. Do not mention "Prashant" on public URLs for now.
-# BRAND = "Prashant Properties"
+# Public brand.
 BRAND = "Properties"
 
 ROOT = Path("/workspace")

@@ -1,7 +1,9 @@
 # Deploy the properties backend (AWS SAM)
-# Internal stack name stays prashant-backend. Public copy says property or properties.
 
-Stack name: `prashant-backend`. Region: `ap-south-1`. Account used by ProPage / Motorover / Invoices: `300601068858`.
+Stack name: `properties-backend`. Region: `ap-south-1`. Account used by ProPage / Motorover / Invoices: `300601068858`.
+The GitHub repository stays [propagetech/prashant](https://github.com/propagetech/prashant).
+
+If this account already has a live stack from an earlier name, keep deploying that stack until you are ready to cut over tables and the API URL.
 
 ## First time
 
@@ -9,7 +11,7 @@ Stack name: `prashant-backend`. Region: `ap-south-1`. Account used by ProPage / 
 openssl rand -hex 16 > backend/.admin-token.txt
 cd backend
 sam build
-sam deploy --stack-name prashant-backend --region ap-south-1 \
+sam deploy --stack-name properties-backend --region ap-south-1 \
   --capabilities CAPABILITY_IAM --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset \
   --parameter-overrides \
     AllowedOrigin=https://p.propage.in \

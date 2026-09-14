@@ -10,7 +10,7 @@
     (function () {
       var stored = null;
       try {
-        stored = localStorage.getItem("prashant-theme");
+        stored = localStorage.getItem("properties-theme");
       } catch (err) {}
       var theme = stored === "light" || stored === "dark"
         ? stored
@@ -19,7 +19,7 @@
       document.documentElement.style.colorScheme = theme;
       try {
         var agreed = document.cookie.split(";").some(function (part) {
-          return part.trim() === "prashant-consent=all";
+          return part.trim() === "properties-consent=all";
         });
         if (agreed) {
           document.documentElement.classList.remove("consent-pending");

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Properties backend (internal stack key: prashant). HTTP API -> Lambda Node 24 arm64 -> DynamoDB + optional SES.
+  Properties backend. HTTP API -> Lambda Node 24 arm64 -> DynamoDB + optional SES.
   Public: submit, views, presence, stats, listing-status GET, properties GET.
   Admin token: submissions, analytics, listing-status PATCH, properties write.
 
@@ -75,7 +75,7 @@ Resources:
   SubmissionsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: prashant-submissions
+      TableName: properties-submissions
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: id
@@ -87,7 +87,7 @@ Resources:
   ViewsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: prashant-views
+      TableName: properties-views
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: propertyId
@@ -103,7 +103,7 @@ Resources:
   PresenceTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: prashant-presence
+      TableName: properties-presence
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: propertyId
@@ -122,7 +122,7 @@ Resources:
   StatusTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: prashant-listing-status
+      TableName: properties-listing-status
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: propertyId
@@ -134,7 +134,7 @@ Resources:
   PropertiesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: prashant-properties
+      TableName: properties-properties
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: id
