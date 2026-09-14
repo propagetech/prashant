@@ -4,7 +4,7 @@ from pathlib import Path
 # Public brand.
 BRAND = "Properties"
 
-ROOT = Path("/workspace")
+ROOT = Path(__file__).resolve().parents[1]
 
 NAV = [
     ("properties", "Properties", "HOME"),
@@ -37,6 +37,10 @@ def header(depth, current):
     return f"""<header class="site-header">
   <div class="wrap topbar">
     <a class="brand" href="{home}">{BRAND}</a>
+    <button type="button" class="theme-toggle" aria-label="Use light theme">
+      <svg class="theme-icon theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v1.5M12 19.5V21M4.93 4.93l1.06 1.06M18.01 18.01l1.06 1.06M3 12h1.5M19.5 12H21M4.93 19.07l1.06-1.06M18.01 5.99l1.06-1.06"/></svg>
+      <svg class="theme-icon theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z"/></svg>
+    </button>
     <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
     <nav id="site-nav" class="site-nav" aria-label="Primary">
       <ul>
@@ -101,6 +105,27 @@ def shell(depth, title, description, current, body, extra_head="", schema=None):
   <title>{title}</title>
   <meta name="description" content="{description}">
   <meta name="theme-color" content="#16130f">
+  <script>
+    (function () {{
+      var stored = null;
+      try {{
+        stored = localStorage.getItem("properties-theme");
+      }} catch (err) {{}}
+      var theme = stored === "light" || stored === "dark"
+        ? stored
+        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.style.colorScheme = theme;
+      try {{
+        var agreed = document.cookie.split(";").some(function (part) {{
+          return part.trim() === "properties-consent=all";
+        }});
+        if (agreed) {{
+          document.documentElement.classList.remove("consent-pending");
+        }}
+      }} catch (err) {{}}
+    }})();
+  </script>
   <link rel="icon" href="{ico}" type="image/svg+xml">
   <link rel="preload" href="{asset(depth, 'fonts/manrope-latin-400-normal.woff2')}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{asset(depth, 'fonts/Coconat-Demi.woff2')}" as="font" type="font/woff2" crossorigin>
@@ -198,8 +223,9 @@ pages.append((
         </div>
         <div class="map-fallback" id="map-fallback" hidden>
           <p class="eyebrow">Map</p>
-          <h2>Interactive map needs a Maps key</h2>
-          <p>Listings still appear as cards below. The coloured boundary map is enabled when a restricted Google Maps key is configured.</p>
+          <h2>Interactive map is unavailable</h2>
+          <p>Listings still appear as cards below. The parcel map loads when Google Maps accepts this domain.</p>
+          <p id="map-place-link"></p>
         </div>
       </div>
     </div>
@@ -234,7 +260,7 @@ pages.append((
       <p><span class="status status-available" id="prop-status" hidden></span></p>
       <div class="card-grid" id="prop-facts"></div>
       <details class="more-facts" id="prop-stats">
-        <summary aria-label="More listing details">...</summary>
+        <summary>Listing activity</summary>
         <div class="stats-row muted">
           <p>Listed: <span id="stat-listed">Not published</span></p>
           <p>Property-page views: <span id="stat-views">Not yet counted</span></p>
@@ -257,6 +283,12 @@ pages.append((
           <h2>Select a listing</h2>
           <p>This page needs a property id in the address, for example <code>?id=BLR-PLT-01</code>.</p>
           <a class="btn btn-primary" href="../">Back to the map</a>
+        </div>
+        <div class="map-fallback" id="map-fallback" hidden>
+          <p class="eyebrow">Map</p>
+          <h2>Open this pin on Google Maps</h2>
+          <p>The interactive map is unavailable on this domain. Use the place link until Maps is authorised.</p>
+          <p id="map-place-link"></p>
         </div>
       </div>
     </div>
@@ -299,7 +331,7 @@ def form_page(title_text, h1, lede, form_type, extra_fields, submit_label):
       <h1>{h1}</h1>
       <p class="lede">{lede}</p>
       <form class="form js-lead-form" method="post" data-form-type="{form_type}" action="../contact/">
-        <input class="hp" type="text" name="website_hp" tabindex="-1" autocomplete="off">
+        <input class="hp" type="text" name="website_hp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label>Property ID
           <input name="propertyId" id="field-property-id" required maxlength="40" placeholder="BLR-PLT-01">
         </label>
@@ -603,7 +635,7 @@ admin_body = """  <section class="hero">
             </select>
           </label>
         </div>
-        <div style="overflow:auto"><table id="admin-listings">
+        <div class="table-scroll"><table id="admin-listings">
           <thead>
             <tr>
               <th><button type="button" class="sort-btn" data-sort="id" aria-sort="ascending">ID</button></th>
@@ -702,11 +734,11 @@ admin_body = """  <section class="hero">
           <p class="form-status" role="status"></p>
         </form>
         <h2>Cities (internal)</h2>
-        <div style="overflow:auto"><table id="admin-cities"><thead><tr><th>City</th><th>Region</th><th>Views</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-scroll"><table id="admin-cities"><thead><tr><th>City</th><th>Region</th><th>Views</th></tr></thead><tbody></tbody></table></div>
         <h2>Channels</h2>
-        <div style="overflow:auto"><table id="admin-utm"><thead><tr><th>Source</th><th>Medium</th><th>Campaign</th><th>Count</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-scroll"><table id="admin-utm"><thead><tr><th>Source</th><th>Medium</th><th>Campaign</th><th>Count</th></tr></thead><tbody></tbody></table></div>
         <h2>Recent leads</h2>
-        <div style="overflow:auto"><table id="admin-leads"><thead><tr><th>When</th><th>Type</th><th>Property</th><th>Name</th><th>Mobile</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-scroll"><table id="admin-leads"><thead><tr><th>When</th><th>Type</th><th>Property</th><th>Name</th><th>Mobile</th></tr></thead><tbody></tbody></table></div>
       </div>
     </div>
   </section>
@@ -717,7 +749,7 @@ pages.append((
     1,
     "Demand desk",
     "Internal demand dashboard.",
-    "contact",
+    "admin",
     admin_body,
     None,
     '<meta name="robots" content="noindex, nofollow">\n  ',

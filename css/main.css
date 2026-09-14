@@ -576,10 +576,15 @@ button.btn {
   display: none;
 }
 
+.map-shell:has(#map-empty:not([hidden])),
+.map-shell:has(#map-fallback:not([hidden])) {
+  min-height: 0;
+  height: auto;
+}
+
 .map-shell:has(#map-empty:not([hidden])) #property-map,
 .map-shell:has(#map-fallback:not([hidden])) #property-map {
-  height: 0;
-  min-height: 0;
+  display: none;
 }
 
 .map-shell.is-full {
@@ -815,6 +820,14 @@ body.is-map-full .site-header {
   gap: var(--space-4);
 }
 
+.form[hidden] {
+  display: none;
+}
+
+.form :is(input, select, textarea, label, button[type="submit"]) {
+  scroll-margin-top: calc(var(--header-h) + var(--space-3));
+}
+
 .listings-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -831,7 +844,7 @@ body.is-map-full .site-header {
   appearance: none;
   background: transparent;
   border: 0;
-  padding: 0;
+  padding: 0 0.4rem;
   font: inherit;
   font-weight: 600;
   color: inherit;
@@ -839,6 +852,7 @@ body.is-map-full .site-header {
   text-transform: uppercase;
   cursor: pointer;
   min-height: var(--tap);
+  min-width: var(--tap);
 }
 
 .sort-btn[aria-sort="ascending"]::after {
@@ -1035,15 +1049,14 @@ textarea {
 .more-facts summary {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   min-height: var(--tap);
-  min-width: var(--tap);
   padding: 0;
   cursor: pointer;
   list-style: none;
   color: var(--gold);
-  font: 600 var(--fs-lg) / 1 var(--font-body);
-  letter-spacing: 0.1em;
+  font: 600 var(--fs-sm) / 1.2 var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .more-facts summary::-webkit-details-marker,
@@ -1304,7 +1317,7 @@ textarea {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
@@ -1322,10 +1335,85 @@ textarea {
   font-family: var(--font-display);
 }
 
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.table-scroll table {
+  width: max-content;
+  min-width: 100%;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   background: var(--bg-elev);
+}
+
+@media (max-width: 720px) {
+  .guide .table-scroll {
+    overflow: visible;
+  }
+
+  .guide .table-scroll table {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .guide table,
+  .guide tbody,
+  .guide tr,
+  .guide th,
+  .guide td {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .guide thead {
+    display: none;
+  }
+
+  .guide tr {
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+  }
+
+  .guide th,
+  .guide td {
+    border-bottom: 0;
+    padding: var(--space-2) 0;
+    overflow-wrap: anywhere;
+  }
+
+  .guide td + td {
+    border-top: 1px solid var(--line);
+  }
+
+  .guide td::before {
+    display: block;
+    margin-bottom: var(--space-1);
+    color: var(--accent);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .guide td:nth-child(1)::before {
+    content: "Record";
+  }
+
+  .guide td:nth-child(2)::before {
+    content: "Portal";
+  }
+
+  .guide td:nth-child(3)::before {
+    content: "Start here";
+  }
 }
 
 .guide h2 {

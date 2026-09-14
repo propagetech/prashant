@@ -391,7 +391,7 @@
         ? "</p><p>" + escapeHtml(prop.boundaryNote)
         : "") +
       '</p><details class="more-facts">' +
-      '<summary aria-label="More listing details">...</summary>' +
+      "<summary>Listing activity</summary>" +
       '<div class="more-facts-body">' +
       "<p><strong>Listed:</strong> " +
       escapeHtml(formatDate(prop.listingDate)) +
@@ -596,6 +596,28 @@
     }, HEARTBEAT_MS);
   }
 
+  function fillPlaceLinks(drawable) {
+    const placeBox = $("#map-place-link");
+    if (!placeBox) {
+      return;
+    }
+    const withPlace = (drawable || []).filter(function (p) {
+      return p.placeUrl || p.mapsUrl;
+    });
+    placeBox.innerHTML = withPlace
+      .map(function (p) {
+        const href = p.placeUrl || p.mapsUrl;
+        return (
+          '<a class="btn btn-primary" href="' +
+          escapeHtml(href) +
+          '" target="_blank" rel="noopener">' +
+          escapeHtml(p.title || p.id) +
+          " on Google Maps</a>"
+        );
+      })
+      .join(" ");
+  }
+
   function drawMap(properties, focusId) {
     const empty = $("#map-empty");
     const fallback = $("#map-fallback");
@@ -615,28 +637,9 @@
     if (empty) {
       empty.hidden = true;
     }
+    fillPlaceLinks(drawable);
     if (!cfg.MAPS_API_KEY) {
-      if (fallback) {
-        fallback.hidden = false;
-      }
-      const placeBox = $("#map-place-link");
-      if (placeBox) {
-        const withPlace = drawable.filter(function (p) {
-          return p.placeUrl || p.mapsUrl;
-        });
-        placeBox.innerHTML = withPlace
-          .map(function (p) {
-            const href = p.placeUrl || p.mapsUrl;
-            return (
-              '<a class="btn btn-primary" href="' +
-              escapeHtml(href) +
-              '" target="_blank" rel="noopener">' +
-              escapeHtml(p.title || p.id) +
-              " on Google Maps</a>"
-            );
-          })
-          .join(" ");
-      }
+      showMapFallback();
       return;
     }
     if (fallback) {
@@ -838,6 +841,17 @@
 
   const mapsWaiters = [];
 
+  function showMapFallback() {
+    const fallback = $("#map-fallback");
+    if (fallback) {
+      fallback.hidden = false;
+    }
+    const mapEl = $("#property-map");
+    if (mapEl) {
+      mapEl.replaceChildren();
+    }
+  }
+
   function loadMapsScript(onReady) {
     if (!cfg.MAPS_API_KEY) {
       return;
@@ -850,6 +864,7 @@
     if (document.querySelector("script[data-properties-maps]")) { // property map loader
       return;
     }
+    window.gm_authFailure = showMapFallback;
     window.propertiesMapsReady = function () { // Maps ready for the properties map
       mapsWaiters.splice(0).forEach(function (fn) {
         fn();
@@ -864,10 +879,7 @@
     s.defer = true;
     s.setAttribute("data-properties-maps", "1"); // one Maps script for property pins
     s.addEventListener("error", function () {
-      const fallback = $("#map-fallback");
-      if (fallback) {
-        fallback.hidden = false;
-      }
+      showMapFallback();
       const editorStatus = $("#admin-property-form .form-status");
       if (editorStatus) {
         editorStatus.className = "form-status is-error";
@@ -1887,7 +1899,8 @@
         center: placePin || (parsedPlace ? { lat: parsedPlace.lat, lng: parsedPlace.lng } : null),
         points: points,
       };
-      const existing = liveIds[payload.id];
+      const loadedId = ((loadSel && loadSel.value) || "").trim().toUpperCase();
+      const existing = Boolean(liveIds[payload.id] && loadedId === payload.id);
       try {
         const saved = await apiSend(existing ? "/properties/" + encodeURIComponent(payload.id) : "/properties", {
           method: existing ? "PATCH" : "POST",
@@ -1902,6 +1915,9 @@
         $("#admin-delete-prop").hidden = false;
         if (typeof form._onSaved === "function") {
           form._onSaved();
+        }
+        if (loadSel) {
+          loadSel.value = saved.item.id;
         }
       } catch (err) {
         setStatus(false, err.status === 409 ? "That property ID already exists. Load it to edit." : "Could not save this listing. Check the ID, title, Maps URL, or map points.");
@@ -2066,11 +2082,21 @@
           sel.value = row.status;
         }
         sel.addEventListener("change", async function () {
-          await apiSend("/listing-status/" + encodeURIComponent(id), {
-            method: "PATCH",
-            headers: tokenHeader(),
-            body: JSON.stringify({ status: sel.value }),
-          });
+          const previous = row && row.status;
+          try {
+            await apiSend("/listing-status/" + encodeURIComponent(id), {
+              method: "PATCH",
+              headers: tokenHeader(),
+              body: JSON.stringify({ status: sel.value }),
+            });
+            if (row) {
+              row.status = sel.value;
+            }
+          } catch (err) {
+            if (previous) {
+              sel.value = previous;
+            }
+          }
         });
       });
       $$("[data-edit-id]", tbody).forEach(function (btn) {
