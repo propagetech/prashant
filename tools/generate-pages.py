@@ -512,12 +512,12 @@ pages.append((
     ROOT / "contact" / "index.html",
     1,
     "Contact",
-    "Send an enquiry about a land listing. Phone and WhatsApp will be published when confirmed.",
+    "Send an enquiry about a land listing. Include the property ID if you have one.",
     "contact",
     form_page(
         "Contact",
         "Contact",
-        "Direct phone, WhatsApp, and email will be published here once the owner confirms them. Until then, use this form. If the form API is not live, the page will offer an email starter when an address is configured.",
+        "Use this form to enquire about a listing. Include the property ID if you have one. We will reply using the mobile number and email you provide.",
         "enquiry",
         [
             """<label>Buyer type
@@ -545,7 +545,7 @@ pages.append((
     <div class="wrap">
       <p class="eyebrow">Legal</p>
       <h1>Privacy notice</h1>
-      <p class="lede">This notice is written for a small land-listing site. It will be updated with a named data fiduciary and contact email when those facts are confirmed.</p>
+      <p class="lede">This notice covers cookies, form submissions, and anonymous listing analytics on this site.</p>
       <h2>What we collect</h2>
       <p>When you open a listing we create an anonymous session ID in your browser and may record a unique view and a heartbeat while the tab is visible. Forms collect name, mobile, email, property ID, commercial fields you type, and consent. We derive a coarse city or region from IP address for internal demand only. We do not store the raw IP in public interfaces. We do not ask for precise GPS unless you press a control such as Show distance from me.</p>
       <h2>Why</h2>
@@ -555,7 +555,7 @@ pages.append((
       <h2>Retention</h2>
       <p>Anonymous analytics: delete or aggregate after 90 days. Unqualified enquiries: review after 6 to 12 months. Serious buyer records: retain only as needed for the transaction and legal duties.</p>
       <h2>Your choices</h2>
-      <p>The overlay stays until you press Agree to analytics. To withdraw later, delete that cookie in your browser or use the contact form once an operator email is published.</p>
+      <p>The overlay stays until you press Agree to analytics. To withdraw later, delete that cookie in your browser or use the contact form.</p>
     </div>
   </section>
 """,

@@ -1392,7 +1392,7 @@
       if (fallback && cfg.CONTACT_EMAIL) {
         const subject = encodeURIComponent(form.getAttribute("data-form-type") + " " + (id || ""));
         fallback.innerHTML =
-          'Email starter: <a href="mailto:' +
+          'Or email: <a href="mailto:' +
           encodeURIComponent(cfg.CONTACT_EMAIL).replace("%40", "@") +
           "?subject=" +
           subject +
