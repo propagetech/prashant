@@ -63,7 +63,7 @@
   --map-stroke: #178a4a;
   --map-fill: #0f5c32;
   --sold: hsl(35 8% 72%);
-  --offer: hsl(32 55% 62%);
+  --reserved: hsl(32 55% 62%);
   --danger: hsl(8 70% 72%);
   --radius: 2px;
   --shadow: 0 24px 60px hsl(0 0% 0% / 0.35);
@@ -117,7 +117,7 @@
   --dark: hsl(38 24% 92%);
   --btn-ink: hsl(38 40% 98%);
   --sold: hsl(35 12% 38%);
-  --offer: hsl(28 72% 34%);
+  --reserved: hsl(28 72% 34%);
   --danger: hsl(8 70% 36%);
   --shadow: 0 20px 48px hsl(32 24% 28% / 0.12);
   --header-bg: hsl(38 32% 96% / 0.88);
@@ -803,10 +803,10 @@ body.is-map-full .site-header {
   border: 1px solid var(--gold);
 }
 
-.status-offer {
+.status-reserved {
   background: transparent;
-  color: var(--offer);
-  border: 1px solid var(--offer);
+  color: var(--reserved);
+  border: 1px solid var(--reserved);
 }
 
 .status-sold {

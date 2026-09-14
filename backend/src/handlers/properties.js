@@ -1,5 +1,5 @@
 import { fail, isAuthorized, ok, readJson } from "../lib/respond.js";
-import { validateProperty } from "../lib/validate.js";
+import { normalizeStatus, validateProperty } from "../lib/validate.js";
 import {
   client,
   DeleteCommand,
@@ -17,7 +17,7 @@ function publicItem(item) {
     id: item.id,
     title: item.title,
     listingDate: item.listingDate,
-    status: item.status,
+    status: normalizeStatus(item.status),
     area: item.area || "",
     dimensions: item.dimensions || "",
     roadAccess: item.roadAccess || "",

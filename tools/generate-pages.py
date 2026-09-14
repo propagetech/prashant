@@ -149,13 +149,13 @@ home_schema = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": BRAND,
-    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire or submit an offer.",
+    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire.",
 }
 
 faq_qas = [
     (
         "Are the map boundaries a legal survey?",
-        "No. The coloured outline is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.",
+        "No. The coloured outline is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.",
     ),
     (
         "Why do listings use codes like BLR-PLT-01?",
@@ -215,7 +215,7 @@ pages.append((
         <div class="map-empty" id="map-empty">
           <p class="eyebrow">Catalogue</p>
           <h2>Listings are being prepared</h2>
-          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how visits and offers work, or send a general enquiry.</p>
+          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how visits work, or send a general enquiry.</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="contact/">Send an enquiry</a>
             <a class="btn btn-secondary" href="how-it-works/">How it works</a>
@@ -230,7 +230,7 @@ pages.append((
       </div>
     </div>
     <div class="wrap">
-      <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
+      <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
     </div>
   </section>
   <section class="section" id="listings">
@@ -293,7 +293,7 @@ pages.append((
       </div>
     </div>
     <div class="wrap">
-      <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
+      <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
     </div>
   </section>
 """,
@@ -359,55 +359,7 @@ def form_page(title_text, h1, lede, form_type, extra_fields, submit_label):
 """
 
 
-pages.append((
-    ROOT / "submit-offer" / "index.html",
-    1,
-    "Submit an offer",
-    "Send an offer amount and contact details for a public property reference.",
-    "contact",
-    form_page(
-        "Submit an offer",
-        "Submit an offer",
-        "Include the property reference, your offer, and how you plan to fund it. Offers are reviewed privately. This page does not publish other buyers' bids.",
-        "offer",
-        [
-            """<label>Buyer type
-          <select name="buyerType" required>
-            <option value="">Select</option>
-            <option>Self-use</option>
-            <option>Investor</option>
-            <option>Broker</option>
-          </select>
-        </label>""",
-            """<label>Budget range
-          <input name="budgetRange" maxlength="80">
-        </label>""",
-            """<label>Offer amount
-          <input name="offerAmount" required maxlength="80">
-        </label>""",
-            """<label>Funding
-          <select name="funding" required>
-            <option value="">Select</option>
-            <option>Cash</option>
-            <option>Loan</option>
-            <option>Mixed</option>
-          </select>
-        </label>""",
-            """<label>Purchase timeline
-          <select name="timeline">
-            <option value="">Select</option>
-            <option>Immediate</option>
-            <option>Within 3 months</option>
-            <option>3 to 6 months</option>
-            <option>Exploring</option>
-          </select>
-        </label>""",
-        ],
-        "Submit offer",
-    ),
-    None,
-    "",
-))
+
 
 pages.append((
     ROOT / "site-visit" / "index.html",
@@ -429,7 +381,7 @@ pages.append((
             <option value="">Select</option>
             <option>Self-use</option>
             <option>Investor</option>
-            <option>Broker</option>
+            <option>Agent</option>
           </select>
         </label>""",
         ],
@@ -443,12 +395,12 @@ pages.append((
     ROOT / "how-it-works" / "index.html",
     1,
     "How it works",
-    "How to inspect a parcel on the map, enquire, visit, and offer.",
+    "How to inspect a parcel on the map, enquire, and visit.",
     "how",
     """  <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Process</p>
-      <h1>From map click to offer</h1>
+      <h1>From private viewing to enquiry</h1>
       <p class="lede">A short path designed for serious buyers. No public Drive links. No manufactured urgency.</p>
       <ol class="steps">
         <li>
@@ -468,8 +420,8 @@ pages.append((
           <p>Use Contact or I am interested on a listing. We reply privately. Legal files stay off the public site.</p>
         </li>
         <li>
-          <h2>Visit and offer</h2>
-          <p>Book a site visit, then submit an offer with funding and timeline. Status may move from Available to Under offer to Sold.</p>
+          <h2>Visit the land</h2>
+          <p>Book a site visit if you want to see the parcel in person. Status may move from Available to Reserved to Sold.</p>
         </li>
       </ol>
       <p><a class="btn btn-primary" href="../">View properties</a></p>
@@ -525,7 +477,7 @@ pages.append((
             <option value="">Select</option>
             <option>Self-use</option>
             <option>Investor</option>
-            <option>Broker</option>
+            <option>Agent</option>
           </select>
         </label>""",
         ],
@@ -574,7 +526,7 @@ pages.append((
       <p class="eyebrow">Legal</p>
       <h1>Terms of use</h1>
       <p>This website is an information and enquiry channel for land listings. It is not a completed sale, allotment, or legal advice.</p>
-      <p>You must not scrape personal data, attempt to bypass document controls, or submit false offers. We may refuse or delete submissions that look like spam.</p>
+      <p>You must not scrape personal data, attempt to bypass document controls, or submit false enquiries. We may refuse or delete submissions that look like spam.</p>
       <p>Listing status can change. Sold means the public catalogue should no longer present the parcel as available.</p>
     </div>
   </section>
@@ -593,7 +545,7 @@ pages.append((
     <div class="wrap">
       <p class="eyebrow">Legal</p>
       <h1>Disclaimer</h1>
-      <p>Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before making an offer.</p>
+      <p>Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
       <p>Photographs, extents, and price guidance are as supplied for marketing. They may be approximate. Public view counts are unique listing sessions, not a promise of demand and not a record of physical visits.</p>
       <p>Controlled documents, when shared, are for due diligence. They may be watermarked. Forwarding them without permission is not allowed.</p>
     </div>
@@ -671,7 +623,7 @@ admin_body = """  <section class="hero">
               <label>Status
                 <select id="admin-prop-status">
                   <option>Available</option>
-                  <option>Under offer</option>
+                  <option>Reserved</option>
                   <option>Sold</option>
                 </select>
               </label>

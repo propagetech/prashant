@@ -240,12 +240,26 @@
     return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
   }
 
+  function displayStatus(status) {
+    if (status === "Sold" || status === "Reserved") {
+      return status;
+    }
+    if (!status || status === "Available") {
+      return status || "Available";
+    }
+    return "Reserved";
+  }
+
+  function isReservedStatus(status) {
+    return displayStatus(status) === "Reserved";
+  }
+
   function statusClass(status) {
     if (status === "Sold") {
       return "status-sold";
     }
-    if (status === "Under offer") {
-      return "status-offer";
+    if (isReservedStatus(status)) {
+      return "status-reserved";
     }
     return "status-available";
   }
@@ -254,7 +268,7 @@
     if (status === "Sold") {
       return { strokeColor: "#C41E3A", fillColor: "#8B1428" };
     }
-    if (status === "Under offer") {
+    if (isReservedStatus(status)) {
       return { strokeColor: "#D55E00", fillColor: "#9a3f00" };
     }
     return { strokeColor: "#178A4A", fillColor: "#0F5C32" };
@@ -429,7 +443,7 @@
         '</p><p><span class="status ' +
         statusClass(prop.status) +
         '">' +
-        escapeHtml(prop.status || "Available") +
+        escapeHtml(displayStatus(prop.status)) +
         "</span></p><p><a class=\"btn btn-primary\" href=\"" +
         escapeHtml(pageUrl("property/", { id: prop.id })) +
         '">Open dossier</a></p>';
@@ -1031,7 +1045,7 @@
     $("#prop-lede").textContent = prop.location || "";
     const badge = $("#prop-status");
     badge.hidden = false;
-    badge.textContent = prop.status || "Available";
+    badge.textContent = displayStatus(prop.status);
     badge.className = "status " + statusClass(prop.status);
     $("#stat-listed").textContent = formatDate(prop.listingDate);
     const facts = [
@@ -1067,8 +1081,8 @@
       escapeHtml(pageUrl("site-visit/", { id: prop.id })) +
       '">Request a site visit</a>' +
       '<a class="btn btn-primary" href="' +
-      escapeHtml(pageUrl("submit-offer/", { id: prop.id })) +
-      '">Make an offer</a>';
+      escapeHtml(pageUrl("contact/", { id: prop.id })) +
+      '">Enquire</a>';
     recordView(prop.id);
     startPresence(prop.id);
     loadPropertyStats(prop.id);
@@ -1770,7 +1784,7 @@
       $("#admin-prop-id").value = prop.id || "";
       $("#admin-prop-title").value = prop.title || "";
       $("#admin-prop-location").value = prop.location || "";
-      $("#admin-prop-status").value = prop.status || "Available";
+      $("#admin-prop-status").value = displayStatus(prop.status);
       $("#admin-prop-date").value = prop.listingDate || "";
       $("#admin-prop-area").value = prop.area || "";
       $("#admin-prop-dimensions").value = prop.dimensions || "";
@@ -2098,7 +2112,7 @@
   }
 
   function listingLeads(row) {
-    return (row.enquiry || 0) + (row["document-request"] || 0) + (row["site-visit"] || 0) + (row.offer || 0) + (row.interest || 0);
+    return (row.enquiry || 0) + (row["document-request"] || 0) + (row["site-visit"] || 0) + (row.interest || 0);
   }
 
   function setupListingsDesk(catalogProps, summaryRows, fileIds) {
@@ -2131,7 +2145,6 @@
         enquiry: extra.enquiry || 0,
         "document-request": extra["document-request"] || 0,
         "site-visit": extra["site-visit"] || 0,
-        offer: extra.offer || 0,
         interest: extra.interest || 0,
         hidden: Boolean(prop.hidden),
         inFile: Boolean((fileIds || {})[prop.id]),
@@ -2153,7 +2166,6 @@
         enquiry: extra.enquiry || 0,
         "document-request": extra["document-request"] || 0,
         "site-visit": extra["site-visit"] || 0,
-        offer: extra.offer || 0,
         interest: extra.interest || 0,
         hidden: false,
         inFile: Boolean((fileIds || {})[id]),
@@ -2216,7 +2228,7 @@
             "</td><td>" +
             escapeHtml(row.location) +
             "</td><td>" +
-            escapeHtml(row.status || "") +
+            escapeHtml(displayStatus(row.status)) +
             "</td><td>" +
             escapeHtml(row.uniqueViews) +
             "</td><td>" +
@@ -2226,7 +2238,7 @@
             escapeHtml(row.id) +
             '" aria-label="Status for ' +
             escapeHtml(row.id) +
-            '"><option>Available</option><option>Under offer</option><option>Sold</option></select>' +
+            '"><option>Available</option><option>Reserved</option><option>Sold</option></select>' +
             '<button type="button" class="btn btn-secondary" data-edit-id="' +
             escapeHtml(row.id) +
             '">Edit</button>' +
@@ -2245,7 +2257,7 @@
           return item.id === id;
         });
         if (row && row.status) {
-          sel.value = row.status;
+          sel.value = displayStatus(row.status);
         }
         sel.addEventListener("change", async function () {
           const previous = row && row.status;
@@ -2405,7 +2417,6 @@
         ["Unique views", summary.totals.uniqueViews],
         ["Active now", summary.totals.activeSessions],
         ["Leads", summary.totals.leads],
-        ["Offers", summary.totals.offers],
       ]
         .map(function (row) {
           return '<article class="kpi"><span>' + row[0] + "</span><strong>" + escapeHtml(row[1]) + "</strong></article>";

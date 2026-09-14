@@ -4,6 +4,25 @@ function clip(value, max) {
   return String(value || "").trim().slice(0, max);
 }
 
+export function normalizeStatus(status) {
+  if (status === "Available" || status === "Reserved" || status === "Sold") {
+    return status;
+  }
+  if (!status) {
+    return status;
+  }
+  return "Reserved";
+}
+
+const LEAD_TYPES = ["enquiry", "site-visit", "interest", "document-request"];
+
+export function storedFormType(formType) {
+  if (LEAD_TYPES.includes(formType)) {
+    return formType;
+  }
+  return formType ? "enquiry" : formType;
+}
+
 export function validateSubmission(body) {
   if (!body || typeof body !== "object") {
     return { error: "Invalid JSON" };
@@ -12,7 +31,7 @@ export function validateSubmission(body) {
     return { honeypot: true };
   }
   const formType = clip(body.formType, 40);
-  const allowed = ["enquiry", "site-visit", "offer", "interest"];
+  const allowed = ["enquiry", "site-visit", "interest"];
   if (!allowed.includes(formType)) {
     return { error: "Unknown form type" };
   }
@@ -36,9 +55,6 @@ export function validateSubmission(body) {
   if (formType !== "enquiry" && !propertyId) {
     return { error: "Property ID is required" };
   }
-  if (formType === "offer" && !clip(body.offerAmount, 80)) {
-    return { error: "Offer amount is required" };
-  }
   return {
     data: {
       formType,
@@ -48,7 +64,7 @@ export function validateSubmission(body) {
       email,
       buyerType: clip(body.buyerType, 40),
       budgetRange: clip(body.budgetRange, 80),
-      offerAmount: clip(body.offerAmount, 80),
+      budget: clip(body.budget, 80),
       funding: clip(body.funding, 40),
       timeline: clip(body.timeline, 40),
       visitDate: clip(body.visitDate, 40),
@@ -180,9 +196,9 @@ export function validateProperty(body) {
   if (placeUrl && !MAPS_LINK.test(placeUrl)) {
     return { error: "Place link must be a Google Maps URL" };
   }
-  const status = clip(body.status, 20) || "Available";
-  if (!["Available", "Under offer", "Sold"].includes(status)) {
-    return { error: "Status must be Available, Under offer, or Sold" };
+  const status = normalizeStatus(clip(body.status, 20) || "Available");
+  if (!["Available", "Reserved", "Sold"].includes(status)) {
+    return { error: "Status must be Available, Reserved, or Sold" };
   }
   const points = Array.isArray(body.points)
     ? body.points.map(parsePoint).filter(Boolean)

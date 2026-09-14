@@ -4,11 +4,11 @@ Source of truth for facts, IA, art direction, and owner gaps. Do not invent cont
 
 ## Business and buyer
 
-**What it is:** A public map catalogue of land parcels for sale. Buyers inspect approximate boundaries, photos, and a non-sensitive summary, then enquire, book a site visit, or submit an offer.
+**What it is:** A public map catalogue of land parcels for sale. Buyers inspect approximate boundaries, photos, and a non-sensitive summary, then enquire or book a site visit.
 
-**Buyer:** Self-use buyers, investors, and brokers looking at Bengaluru-region plots. Decision weight is high (title, access, dimensions, price).
+**Buyer:** Self-use buyers, investors, and agents looking at Bengaluru-region plots. Decision weight is high (title, access, dimensions, price).
 
-**Primary action:** Submit a qualified enquiry or offer with a property reference (for example `BLR-PLT-01`). Secondary: a site visit.
+**Primary action:** Submit a qualified enquiry with a property reference (for example `BLR-PLT-01`). Secondary: a site visit.
 
 **Objections (FAQ drivers):** Is the boundary legal? Can I see title papers? Is the listing current? Who is selling? How do I visit? Why should I trust view counts?
 
@@ -29,7 +29,7 @@ Source of truth for facts, IA, art direction, and owner gaps. Do not invent cont
 | --- | --- | --- |
 | plots for sale Bengaluru / land parcels map | Home | title, H1, intro, schema |
 | plot boundary map / property location | Home, property | H2, disclaimer, alt |
-| submit offer on plot | submit-offer | H1, form |
+| plot enquiry Bengaluru | contact | H1, form |
 | site visit plot Bengaluru | site-visit | H1, form |
 | how plot purchase works | how-it-works | H1, steps |
 | plot listing FAQ title EC khata | faq | questions matching visible answers |
@@ -38,14 +38,13 @@ No keyword stuffing. No locality names in titles until a real parcel is supplied
 
 ## Lead-gen IA
 
-Menu is the buyer journey, not an org chart: Properties (map), How it works, FAQ, Contact. Primary CTA: Enquire (also Make an offer on a selected parcel).
+Menu is the buyer journey, not an org chart: Properties (map), How it works, FAQ, Contact. Primary CTA: Enquire.
 
 | Page | One job | Primary CTA |
 | --- | --- | --- |
 | Home | See every parcel on a map | Open a parcel / enquire |
-| Property | Decide if this plot is worth a visit or offer | Make an offer |
+| Property | Decide if this plot is worth a visit | Enquire |
 | Photos | Inspect the land visually | Enquire |
-| Submit offer | Commercial signal | Submit offer |
 | Site visit | Schedule inspection | Request visit |
 | How it works | Reduce process anxiety | View properties |
 | FAQ | Handle objections | Contact |

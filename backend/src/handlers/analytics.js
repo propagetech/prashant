@@ -1,4 +1,5 @@
 import { fail, isAuthorized, ok } from "../lib/respond.js";
+import { normalizeStatus, storedFormType } from "../lib/validate.js";
 import { client, ScanCommand, tables } from "../lib/store.js";
 
 function bump(map, key) {
@@ -27,7 +28,6 @@ export async function handler(event) {
         enquiry: 0,
         "document-request": 0,
         "site-visit": 0,
-        offer: 0,
         interest: 0,
         status: "",
       };
@@ -44,17 +44,18 @@ export async function handler(event) {
   });
   (subs.Items || []).forEach((item) => {
     const r = row(item.propertyId || "unspecified");
-    if (r[item.formType] !== undefined) {
-      r[item.formType] += 1;
+    const formType = storedFormType(item.formType);
+    if (r[formType] !== undefined) {
+      r[formType] += 1;
     }
   });
   (listings.Items || []).forEach((item) => {
     if (item.id) {
-      row(item.id).status = item.status || row(item.id).status;
+      row(item.id).status = normalizeStatus(item.status) || row(item.id).status;
     }
   });
   (status.Items || []).forEach((item) => {
-    row(item.propertyId).status = item.status;
+    row(item.propertyId).status = normalizeStatus(item.status);
   });
   const cities = {};
   (views.Items || []).forEach((item) => {
@@ -72,11 +73,10 @@ export async function handler(event) {
     (acc, p) => {
       acc.uniqueViews += p.uniqueViews;
       acc.activeSessions += p.activeSessions;
-      acc.leads += p.enquiry + p["document-request"] + p["site-visit"] + p.offer + (p.interest || 0);
-      acc.offers += p.offer;
+      acc.leads += p.enquiry + p["document-request"] + p["site-visit"] + (p.interest || 0);
       return acc;
     },
-    { uniqueViews: 0, activeSessions: 0, leads: 0, offers: 0 }
+    { uniqueViews: 0, activeSessions: 0, leads: 0 }
   );
   return ok({
     totals,

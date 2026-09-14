@@ -28,6 +28,6 @@
 }
 ```
 
-Allowed `status` values: `Available`, `Under offer`, `Sold`. Live status and admin-published parcels from the API win over this file.
+Allowed `status` values: `Available`, `Reserved`, `Sold`. Live status and admin-published parcels from the API win over this file.
 
 The public map shows a pin from `center` or a Google Maps `placeUrl`. `boundary` is optional. The outline appears only after someone clicks that pin.
