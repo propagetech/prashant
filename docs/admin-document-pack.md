@@ -26,7 +26,7 @@ A **paid copy** is a digitally signed EC, certified registered-document extract,
 
 - Use official `.gov.in` portals only. Start from the department home page if a deep link has moved.
 - Use a citizen login that belongs to the business, not a personal account you cannot hand over.
-- Do not use unofficial "download sale deed" sites, Telegram sellers, or broker PDFs of unknown origin.
+- Do not use unofficial "download sale deed" sites, Telegram sellers, or agent PDFs of unknown origin.
 - Do not write scrapers, bots, or anything that bypasses login, CAPTCHA, or payment.
 - Do not paste survey numbers, owner names, deed numbers, or Drive links into the public listing form.
 - Keep the Drive folder Restricted (named people). Never "Anyone with the link".

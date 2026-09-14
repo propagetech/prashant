@@ -18,8 +18,8 @@ Source of truth for facts, IA, art direction, and owner gaps. Do not invent cont
 | --- | --- | --- | --- |
 | 99acres | City-wide marketplace, plots as one tab among flats | Filters, locality pages, volume | Pins and cards, not owner-traced parcel polygons; "verified" is listing hygiene, not title |
 | MagicBricks | Same marketplace pattern; BIAAPA / BDA / BMRDA filters | Approval labels, Devanahalli cluster pages | No seller-controlled document workflow; urgency badges are platform-led |
-| Housing.com / similar portals | Discovery and lead routing to brokers | Photos and price | No controlled due-diligence folder; public IDs mix with survey chatter |
-| Direct broker WhatsApp / Facebook | Fast contact | Photos, location pin | No durable listing page, no listing date, no privacy-safe metrics |
+| Housing.com / similar portals | Discovery and lead routing to agents | Photos and price | No controlled due-diligence folder; public IDs mix with survey chatter |
+| Direct agent WhatsApp / Facebook | Fast contact | Photos, location pin | No durable listing page, no listing date, no privacy-safe metrics |
 
 **How we differ:** One seller catalogue, clickable **land polygons**, public reference IDs instead of survey numbers, listing dates, real (not theatrical) activity metrics, and title papers kept off the public site. Boundaries are labelled as location reference, not cadastral survey.
 
