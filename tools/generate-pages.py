@@ -1,5 +1,5 @@
 # Generate path-portable HTML pages for the properties microsite.
-# Internal project key is prashant. Public copy says property or properties.
+# Internal project key is p. Public copy says property or properties.
 from pathlib import Path
 
 # Public brand. Do not mention "Prashant" on public URLs for now.
@@ -74,11 +74,11 @@ def footer(depth):
   </div>
   <div class="wrap"><p class="muted">Boundary maps are for location reference only.</p></div>
 </footer>
-<div class="consent-banner" id="consent-banner" hidden>
-  <div class="wrap">
-    <p>We use a first-party session id for unique listing views and active-viewer counts. Optional analytics cookies stay off until you agree. See the <a href="{p(depth, 'privacy/')}">privacy notice</a>.</p>
+<div class="consent-banner" id="consent-banner" role="dialog" aria-modal="true" aria-labelledby="consent-title">
+  <div class="consent-card">
+    <p class="eyebrow" id="consent-title">Before you continue</p>
+    <p>We use a first-party cookie for unique listing views, active-viewer counts, and anonymous analytics. Agree to continue. See the <a href="{p(depth, 'privacy/')}">privacy notice</a>.</p>
     <div class="action-row">
-      <button type="button" class="btn btn-primary" data-consent="essential">Essential only</button>
       <button type="button" class="btn btn-gold" data-consent="all">Agree to analytics</button>
     </div>
   </div>
@@ -96,7 +96,7 @@ def shell(depth, title, description, current, body, extra_head="", schema=None):
     js = asset(depth, "js/main.js")
     ico = asset(depth, "imgs/icon.svg")
     return f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="consent-pending">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -521,11 +521,11 @@ pages.append((
       <h2>Why</h2>
       <p>To show the listing, count unique views, show active sessions in the last five minutes, answer enquiries, and share documents with people who asked for them.</p>
       <h2>Consent</h2>
-      <p>Essential session metrics are described here and in the banner. Marketing contact and optional analytics require a separate, unticked action. Consent should be free, specific, informed, and withdrawable.</p>
+      <p>Using this site requires agreeing to anonymous analytics. That choice is stored in a first-party cookie on your browser. Marketing contact still needs a separate, unticked action on forms.</p>
       <h2>Retention</h2>
       <p>Anonymous analytics: delete or aggregate after 90 days. Unqualified enquiries: review after 6 to 12 months. Serious buyer records: retain only as needed for the transaction and legal duties.</p>
       <h2>Your choices</h2>
-      <p>Use Essential only on the banner to skip non-essential analytics. To withdraw consent or ask about data, use the contact form once an operator email is published.</p>
+      <p>The overlay stays until you press Agree to analytics. To withdraw later, delete that cookie in your browser or use the contact form once an operator email is published.</p>
     </div>
   </section>
 """,

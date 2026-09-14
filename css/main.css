@@ -606,8 +606,7 @@ body.is-map-full {
   overflow: hidden;
 }
 
-body.is-map-full .site-header,
-body.is-map-full .consent-banner {
+body.is-map-full .site-header {
   visibility: hidden;
 }
 
@@ -1355,29 +1354,47 @@ td {
   vertical-align: top;
 }
 
+html.consent-pending {
+  overflow: hidden;
+}
+
+html.consent-pending body > *:not(.consent-banner) {
+  display: none !important;
+}
+
 .consent-banner {
-  position: sticky;
-  bottom: 0;
-  background: var(--dark);
-  color: var(--on-dark);
-  padding: var(--space-4);
-  z-index: 30;
-}
-
-.consent-banner :not(.eyebrow) {
-  color: var(--on-dark);
-}
-
-.consent-banner[hidden] {
   display: none;
 }
 
-.consent-banner .wrap {
+html.consent-pending .consent-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--bg);
+}
+
+.consent-card {
+  width: min(28rem, 100%);
+  padding: var(--space-6);
+  background: var(--bg-elev);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.consent-card .eyebrow {
+  margin: 0 0 var(--space-2);
+}
+
+.consent-card p {
+  margin: 0;
+}
+
+.consent-card .action-row {
+  margin-top: var(--space-5);
 }
 
 @media (prefers-reduced-motion: reduce) {

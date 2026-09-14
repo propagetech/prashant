@@ -16,7 +16,7 @@ Parameters:
     Description: Inbox for new-lead notifications.
   AllowedOrigin:
     Type: String
-    Default: https://prashant.propage.in
+    Default: https://p.propage.in
     Description: CORS origin for the live site.
   AdminToken:
     Type: String

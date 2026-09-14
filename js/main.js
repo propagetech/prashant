@@ -3,7 +3,8 @@
 
   const cfg = window.PRASHANT || {}; // properties catalogue config
   const SESSION_KEY = "prashant-session"; // first-party id for property views
-  const CONSENT_KEY = "prashant-consent"; // cookie choice for the properties site
+  const CONSENT_KEY = "prashant-consent"; // first-party cookie for analytics agreement
+  const CONSENT_MAX_AGE = 365 * 24 * 60 * 60;
   const OWNER_KEY = "prashant-owner"; // owner-traffic flag, not a public property field
   const UTM_KEY = "prashant-utm"; // campaign tags on property leads
   const THEME_KEY = "prashant-theme"; // light or dark, remembered across visits
@@ -543,7 +544,7 @@
   }
 
   async function recordView(propertyId) {
-    if (!propertyId || isOwnerTraffic()) {
+    if (!propertyId || isOwnerTraffic() || !hasAnalyticsConsent()) {
       return;
     }
     try {
@@ -563,7 +564,7 @@
   }
 
   async function sendPresence(propertyId, eventName) {
-    if (!propertyId || isOwnerTraffic() || document.visibilityState !== "visible") {
+    if (!propertyId || isOwnerTraffic() || !hasAnalyticsConsent() || document.visibilityState !== "visible") {
       return;
     }
     try {
@@ -1232,20 +1233,109 @@
     });
   }
 
+  function readCookie(name) {
+    const prefix = name + "=";
+    const parts = document.cookie.split(";");
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i].trim();
+      if (part.indexOf(prefix) === 0) {
+        return decodeURIComponent(part.slice(prefix.length));
+      }
+    }
+    return "";
+  }
+
+  function writeCookie(name, value, maxAge) {
+    let cookie = name + "=" + encodeURIComponent(value) + "; path=/; max-age=" + maxAge + "; SameSite=Lax";
+    if (location.protocol === "https:") {
+      cookie += "; Secure";
+    }
+    document.cookie = cookie;
+  }
+
+  function hasAnalyticsConsent() {
+    if (readCookie(CONSENT_KEY) === "all") {
+      return true;
+    }
+    try {
+      if (localStorage.getItem(CONSENT_KEY) === "all") {
+        writeCookie(CONSENT_KEY, "all", CONSENT_MAX_AGE);
+        return true;
+      }
+    } catch (err) {
+      /* cookie is the source of truth */
+    }
+    return false;
+  }
+
+  function setPageInert(isInert) {
+    $$("body > *:not(.consent-banner)").forEach(function (el) {
+      if (isInert) {
+        el.setAttribute("inert", "");
+      } else {
+        el.removeAttribute("inert");
+      }
+    });
+  }
+
+  let siteBooted = false;
+
+  async function bootSite() {
+    if (siteBooted) {
+      return;
+    }
+    siteBooted = true;
+    captureUtm();
+    getSessionId();
+    setupForms();
+    setupAdmin();
+    let properties = [];
+    try {
+      properties = await loadCatalog();
+    } catch (err) {
+      properties = [];
+    }
+    renderList(properties);
+    if ($("#photo-gallery")) {
+      fillPhotos(properties);
+    } else if ($("#prop-facts")) {
+      fillPropertyPage(properties);
+    } else {
+      drawMap(properties);
+    }
+  }
+
   function setupConsent() {
     const banner = $("#consent-banner");
     if (!banner) {
       return;
     }
-    if (!localStorage.getItem(CONSENT_KEY)) {
-      banner.hidden = false;
+    function dismiss() {
+      document.documentElement.classList.remove("consent-pending");
+      setPageInert(false);
     }
-    $$("[data-consent]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        localStorage.setItem(CONSENT_KEY, btn.getAttribute("data-consent"));
-        banner.hidden = true;
+    if (hasAnalyticsConsent()) {
+      dismiss();
+      return;
+    }
+    document.documentElement.classList.add("consent-pending");
+    setPageInert(true);
+    const agree = $("[data-consent='all']", banner);
+    if (agree) {
+      agree.addEventListener("click", function () {
+        writeCookie(CONSENT_KEY, "all", CONSENT_MAX_AGE);
+        try {
+          localStorage.removeItem(CONSENT_KEY);
+        } catch (err) {
+          /* cookie is the source of truth */
+        }
+        dismiss();
+        requestAnimationFrame(function () {
+          bootSite();
+        });
       });
-    });
+      agree.focus();
+    }
   }
 
   function mailtoBody(form) {
@@ -2171,27 +2261,12 @@
     });
   }
 
-  document.addEventListener("DOMContentLoaded", async function () {
-    captureUtm();
-    getSessionId();
+  document.addEventListener("DOMContentLoaded", function () {
     setupTheme();
     setupNav();
     setupConsent();
-    setupForms();
-    setupAdmin();
-    let properties = [];
-    try {
-      properties = await loadCatalog();
-    } catch (err) {
-      properties = [];
-    }
-    renderList(properties);
-    if ($("#photo-gallery")) {
-      fillPhotos(properties);
-    } else if ($("#prop-facts")) {
-      fillPropertyPage(properties);
-    } else {
-      drawMap(properties);
+    if (hasAnalyticsConsent()) {
+      bootSite();
     }
   });
 })();

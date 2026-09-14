@@ -8,8 +8,8 @@
  * PRASHANT is the internal project key. Public copy says property or properties.
  */
 window.PRASHANT = window.PRASHANT || {}; // properties catalogue config
-window.PRASHANT.API_BASE = "https://qa1lggny98.execute-api.ap-south-1.amazonaws.com";
-window.PRASHANT.MAPS_API_KEY = "AIzaSyAJdmK-kXZcOwJIVopmvTsHI8qMJqJ5f64";
-window.PRASHANT.RECAPTCHA_SITE_KEY = "";
-window.PRASHANT.CONTACT_EMAIL = "share.property.documents@gmail.com";
-window.PRASHANT.EXCLUDE_OWNER = false;
+window.p.API_BASE = "https://qa1lggny98.execute-api.ap-south-1.amazonaws.com";
+window.p.MAPS_API_KEY = "AIzaSyAJdmK-kXZcOwJIVopmvTsHI8qMJqJ5f64";
+window.p.RECAPTCHA_SITE_KEY = "";
+window.p.CONTACT_EMAIL = "share.property.documents@gmail.com";
+window.p.EXCLUDE_OWNER = false;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="consent-pending">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,6 +17,14 @@
         : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
       document.documentElement.setAttribute("data-theme", theme);
       document.documentElement.style.colorScheme = theme;
+      try {
+        var agreed = document.cookie.split(";").some(function (part) {
+          return part.trim() === "prashant-consent=all";
+        });
+        if (agreed) {
+          document.documentElement.classList.remove("consent-pending");
+        }
+      } catch (err) {}
     })();
   </script>
   <link rel="icon" href="../imgs/icon.svg" type="image/svg+xml">
@@ -111,11 +119,11 @@
   </div>
   <div class="wrap"><p class="muted">Boundary maps are for location reference only.</p></div>
 </footer>
-<div class="consent-banner" id="consent-banner" hidden>
-  <div class="wrap">
-    <p>We use a first-party session id for unique listing views and active-viewer counts. Optional analytics cookies stay off until you agree. See the <a href="../privacy/">privacy notice</a>.</p>
+<div class="consent-banner" id="consent-banner" role="dialog" aria-modal="true" aria-labelledby="consent-title">
+  <div class="consent-card">
+    <p class="eyebrow" id="consent-title">Before you continue</p>
+    <p>We use a first-party cookie for unique listing views, active-viewer counts, and anonymous analytics. Agree to continue. See the <a href="../privacy/">privacy notice</a>.</p>
     <div class="action-row">
-      <button type="button" class="btn btn-primary" data-consent="essential">Essential only</button>
       <button type="button" class="btn btn-gold" data-consent="all">Agree to analytics</button>
     </div>
   </div>

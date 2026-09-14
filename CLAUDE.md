@@ -1,7 +1,7 @@
 # Prashant Properties
 
 Static map microsite + AWS SAM backend (`prashant-backend`).
-Internal project key is prashant. Public copy says property or properties.
+Internal project key is p. Public copy says property or properties.
 
 - Public listings: `data/properties.json` plus admin-created records from `GET /properties`. No survey numbers, deeds, or Drive URLs.
 - Do not invent contact details, prices, or sample parcels.
