@@ -11,5 +11,5 @@ window.PRASHANT = window.PRASHANT || {}; // properties catalogue config
 window.PRASHANT.API_BASE = "https://qa1lggny98.execute-api.ap-south-1.amazonaws.com";
 window.PRASHANT.MAPS_API_KEY = "AIzaSyAJdmK-kXZcOwJIVopmvTsHI8qMJqJ5f64";
 window.PRASHANT.RECAPTCHA_SITE_KEY = "";
-window.PRASHANT.CONTACT_EMAIL = "propertiesofprashant@gmail.com"; // owner inbox for property leads
+window.PRASHANT.CONTACT_EMAIL = "share.property.documents@gmail.com";
 window.PRASHANT.EXCLUDE_OWNER = false;
