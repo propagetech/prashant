@@ -106,6 +106,129 @@
     return res.json();
   }
 
+  let toastHideTimer = 0;
+
+  function ensureToast() {
+    let el = $("#site-toast");
+    if (el) {
+      return el;
+    }
+    el = document.createElement("div");
+    el.id = "site-toast";
+    el.className = "site-toast";
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    el.setAttribute("aria-atomic", "true");
+    el.hidden = true;
+    el.innerHTML =
+      '<span class="site-toast-mark" aria-hidden="true"></span>' +
+      '<p class="site-toast-msg"></p>';
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function showToast(kind, message) {
+    const el = ensureToast();
+    const msg = $(".site-toast-msg", el);
+    window.clearTimeout(toastHideTimer);
+    if (!message) {
+      el.hidden = true;
+      el.className = "site-toast";
+      if (msg) {
+        msg.textContent = "";
+      }
+      return;
+    }
+    el.hidden = false;
+    el.className = "site-toast is-" + (kind || "pending");
+    msg.textContent = message;
+    if (kind && kind !== "pending") {
+      toastHideTimer = window.setTimeout(function () {
+        el.hidden = true;
+      }, 4500);
+    }
+  }
+
+  function setControlBusy(el, busy) {
+    if (!el) {
+      return;
+    }
+    if (el.matches("button, [type=submit]")) {
+      if (busy) {
+        if (!el.classList.contains("is-busy")) {
+          if (!el.dataset.label) {
+            el.dataset.label = el.textContent.trim();
+          }
+          el.textContent = "Sending";
+          const spin = document.createElement("span");
+          spin.className = "btn-spinner";
+          spin.setAttribute("aria-hidden", "true");
+          el.insertBefore(spin, el.firstChild);
+        }
+        el.disabled = true;
+        el.classList.add("is-busy");
+      } else {
+        el.disabled = false;
+        el.classList.remove("is-busy");
+        el.textContent = el.dataset.label || el.textContent;
+      }
+    } else {
+      el.disabled = Boolean(busy);
+    }
+    if (busy) {
+      el.setAttribute("aria-busy", "true");
+    } else {
+      el.removeAttribute("aria-busy");
+    }
+  }
+
+  function setFormStatus(el, kind, text) {
+    if (el) {
+      el.className = "form-status" + (kind ? " is-" + kind : "");
+      el.textContent = text || "";
+    }
+    if (text) {
+      showToast(kind || "pending", text);
+    } else {
+      showToast("", "");
+    }
+  }
+
+  async function withServerSubmit(opts, action) {
+    const control = opts.control;
+    if (control && (control.disabled || control.getAttribute("aria-busy") === "true")) {
+      const skip = new Error("submit-in-progress");
+      skip.skipped = true;
+      throw skip;
+    }
+    setControlBusy(control, true);
+    if (opts.form) {
+      opts.form.setAttribute("aria-busy", "true");
+    }
+    setFormStatus(opts.status, "pending", opts.pending || "Sending. Please wait.");
+    try {
+      const result = await action();
+      if (opts.ok) {
+        setFormStatus(opts.status, "ok", opts.ok);
+      } else {
+        showToast("", "");
+      }
+      return result;
+    } catch (err) {
+      const message =
+        typeof opts.error === "function"
+          ? opts.error(err)
+          : opts.error || "Could not send just now. Wait a moment and try again.";
+      setFormStatus(opts.status, "error", message);
+      throw err;
+    } finally {
+      setControlBusy(control, false);
+      if (opts.form) {
+        opts.form.removeAttribute("aria-busy");
+      }
+    }
+  }
+
   function formatDate(iso) {
     if (!iso) {
       return "Not published";
@@ -495,28 +618,27 @@
       data.consent = data.consent === "yes";
       data.utm = readUtm();
       const submitBtn = $("button[type=submit]", form);
-      if (submitBtn) {
-        submitBtn.disabled = true;
-      }
       if (!apiUrl("/submit")) {
-        status.className = "form-status is-error";
-        status.textContent = "The enquiry service is not configured yet. Please try again later.";
-        if (submitBtn) {
-          submitBtn.disabled = false;
-        }
+        setFormStatus(status, "error", "The enquiry service is not configured yet. Please try again later.");
         return;
       }
       try {
-        await apiSend("/submit", { method: "POST", body: JSON.stringify(data) });
-        status.className = "form-status is-ok";
-        status.textContent = "Received. We will call you on the number you supplied.";
+        await withServerSubmit(
+          {
+            form: form,
+            control: submitBtn,
+            status: status,
+            pending: "Sending. Please wait.",
+            ok: "Received. We will call you on the number you supplied.",
+            error: "Could not send just now. Wait a moment and try again.",
+          },
+          function () {
+            return apiSend("/submit", { method: "POST", body: JSON.stringify(data) });
+          }
+        );
         form.reset();
       } catch (err) {
-        status.className = "form-status is-error";
-        status.textContent = "Could not send just now. Wait a moment and try again.";
-      }
-      if (submitBtn) {
-        submitBtn.disabled = false;
+        return;
       }
     });
   }
@@ -882,8 +1004,11 @@
       showMapFallback();
       const editorStatus = $("#admin-property-form .form-status");
       if (editorStatus) {
-        editorStatus.className = "form-status is-error";
-        editorStatus.textContent = "Google Maps failed to load. Check the API key referrers for this domain.";
+        setFormStatus(
+          editorStatus,
+          "error",
+          "Google Maps failed to load. Check the API key referrers for this domain."
+        );
       }
     });
     document.head.appendChild(s);
@@ -1424,14 +1549,24 @@
             location.href = href;
             return;
           }
-          status.className = "form-status is-error";
-          status.textContent = "The enquiry service is not configured yet. Please try again later.";
+          setFormStatus(status, "error", "The enquiry service is not configured yet. Please try again later.");
           return;
         }
+        const submitBtn = $("button[type=submit]", form);
         try {
-          await apiSend("/submit", { method: "POST", body: JSON.stringify(data) });
-          status.className = "form-status is-ok";
-          status.textContent = "Received. We will use the contact details you supplied.";
+          await withServerSubmit(
+            {
+              form: form,
+              control: submitBtn,
+              status: status,
+              pending: "Sending. Please wait.",
+              ok: "Received. We will use the contact details you supplied.",
+              error: "Could not send just now. Wait a moment and try again.",
+            },
+            function () {
+              return apiSend("/submit", { method: "POST", body: JSON.stringify(data) });
+            }
+          );
           form.reset();
           if (id) {
             const field = $("#field-property-id", form);
@@ -1440,8 +1575,7 @@
             }
           }
         } catch (err) {
-          status.className = "form-status is-error";
-          status.textContent = "Could not send just now. Wait a moment and try again.";
+          return;
         }
       });
     });
@@ -1500,8 +1634,12 @@
     });
 
     function setStatus(ok, message) {
-      status.className = "form-status " + (ok ? "is-ok" : "is-error");
-      status.textContent = message;
+      if (!message) {
+        status.className = "form-status";
+        status.textContent = "";
+        return;
+      }
+      setFormStatus(status, ok ? "ok" : "error", message);
     }
 
     function redrawEditor() {
@@ -1697,46 +1835,54 @@
         return false;
       }
       try {
-        const inFile = Boolean((form._fileIds || {})[key]);
-        if (liveIds[key] && !inFile) {
-          await apiSend("/properties/" + encodeURIComponent(key), {
-            method: "DELETE",
-            headers: tokenHeader(),
-          });
-          delete liveIds[key];
-        } else {
-          const saved = await apiSend(liveIds[key] ? "/properties/" + encodeURIComponent(key) : "/properties", {
-            method: liveIds[key] ? "PATCH" : "POST",
-            headers: tokenHeader(),
-            body: JSON.stringify({
-              id: key,
-              title: prop.title,
-              location: prop.location,
-              status: prop.status,
-              listingDate: prop.listingDate,
-              area: prop.area,
-              dimensions: prop.dimensions,
-              roadAccess: prop.roadAccess,
-              landType: prop.landType,
-              facing: prop.facing,
-              priceGuidance: prop.priceGuidance,
-              placeUrl: prop.placeUrl,
-              boundaryNote: prop.boundaryNote,
-              points: prop.boundary || [],
-              hidden: true,
-            }),
-          });
-          if (saved && saved.item) {
-            liveIds[key] = true;
+        await withServerSubmit(
+          {
+            status: status,
+            pending: "Removing listing. Please wait.",
+            ok: "Removed from the public map.",
+            error: "Could not remove that listing.",
+          },
+          async function () {
+            const inFile = Boolean((form._fileIds || {})[key]);
+            if (liveIds[key] && !inFile) {
+              await apiSend("/properties/" + encodeURIComponent(key), {
+                method: "DELETE",
+                headers: tokenHeader(),
+              });
+              delete liveIds[key];
+            } else {
+              const saved = await apiSend(liveIds[key] ? "/properties/" + encodeURIComponent(key) : "/properties", {
+                method: liveIds[key] ? "PATCH" : "POST",
+                headers: tokenHeader(),
+                body: JSON.stringify({
+                  id: key,
+                  title: prop.title,
+                  location: prop.location,
+                  status: prop.status,
+                  listingDate: prop.listingDate,
+                  area: prop.area,
+                  dimensions: prop.dimensions,
+                  roadAccess: prop.roadAccess,
+                  landType: prop.landType,
+                  facing: prop.facing,
+                  priceGuidance: prop.priceGuidance,
+                  placeUrl: prop.placeUrl,
+                  boundaryNote: prop.boundaryNote,
+                  points: prop.boundary || [],
+                  hidden: true,
+                }),
+              });
+              if (saved && saved.item) {
+                liveIds[key] = true;
+              }
+            }
           }
-        }
-        setStatus(true, "Removed from the public map.");
+        );
         if (typeof form._onSaved === "function") {
           form._onSaved();
         }
         return true;
       } catch (err) {
-        setStatus(false, "Could not remove that listing.");
         return false;
       }
     }
@@ -1901,17 +2047,37 @@
       };
       const loadedId = ((loadSel && loadSel.value) || "").trim().toUpperCase();
       const existing = Boolean(liveIds[payload.id] && loadedId === payload.id);
+      const submitBtn = $("button[type=submit]", form);
       try {
-        const saved = await apiSend(existing ? "/properties/" + encodeURIComponent(payload.id) : "/properties", {
-          method: existing ? "PATCH" : "POST",
-          headers: tokenHeader(),
-          body: JSON.stringify(payload),
-        });
+        const saved = await withServerSubmit(
+          {
+            form: form,
+            control: submitBtn,
+            status: status,
+            pending: "Saving listing. Please wait.",
+            ok: existing ? "Listing updated on the live map." : "Listing published to the live map.",
+            error: function (err) {
+              return err.status === 409
+                ? "That property ID already exists. Load it to edit."
+                : "Could not save this listing. Check the ID, title, Maps URL, or map points.";
+            },
+          },
+          async function () {
+            const result = await apiSend(existing ? "/properties/" + encodeURIComponent(payload.id) : "/properties", {
+              method: existing ? "PATCH" : "POST",
+              headers: tokenHeader(),
+              body: JSON.stringify(payload),
+            });
+            if (!result || !result.item) {
+              throw new Error("save failed");
+            }
+            return result;
+          }
+        );
         if (!saved || !saved.item) {
-          throw new Error("save failed");
+          return;
         }
         liveIds[saved.item.id] = true;
-        setStatus(true, existing ? "Listing updated on the live map." : "Listing published to the live map.");
         $("#admin-delete-prop").hidden = false;
         if (typeof form._onSaved === "function") {
           form._onSaved();
@@ -1920,7 +2086,7 @@
           loadSel.value = saved.item.id;
         }
       } catch (err) {
-        setStatus(false, err.status === 409 ? "That property ID already exists. Load it to edit." : "Could not save this listing. Check the ID, title, Maps URL, or map points.");
+        return;
       }
     });
 
@@ -2084,11 +2250,21 @@
         sel.addEventListener("change", async function () {
           const previous = row && row.status;
           try {
-            await apiSend("/listing-status/" + encodeURIComponent(id), {
-              method: "PATCH",
-              headers: tokenHeader(),
-              body: JSON.stringify({ status: sel.value }),
-            });
+            await withServerSubmit(
+              {
+                control: sel,
+                pending: "Updating status. Please wait.",
+                ok: "Status updated.",
+                error: "Could not update that status.",
+              },
+              function () {
+                return apiSend("/listing-status/" + encodeURIComponent(id), {
+                  method: "PATCH",
+                  headers: tokenHeader(),
+                  body: JSON.stringify({ status: sel.value }),
+                });
+              }
+            );
             if (row) {
               row.status = sel.value;
             }
@@ -2278,11 +2454,22 @@
     login.addEventListener("submit", async function (event) {
       event.preventDefault();
       sessionStorage.setItem("properties-admin-token", $("#admin-token").value); // unlocks the properties desk
+      const submitBtn = $("button[type=submit]", login);
       try {
-        await loadDash();
+        await withServerSubmit(
+          {
+            form: login,
+            control: submitBtn,
+            status: status,
+            pending: "Opening the dashboard. Please wait.",
+            error: function (err) {
+              return err.status === 401 ? "That token was not accepted." : "Dashboard is not reachable yet.";
+            },
+          },
+          loadDash
+        );
       } catch (err) {
-        status.className = "form-status is-error";
-        status.textContent = err.status === 401 ? "That token was not accepted." : "Dashboard is not reachable yet.";
+        return;
       }
     });
   }
