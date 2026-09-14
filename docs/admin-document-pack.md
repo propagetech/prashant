@@ -4,7 +4,7 @@ Operator notes. The same copy lives on `/documents/`. Do not publish survey numb
 
 ## Purpose
 
-For each listing, collect **on-screen previews** from official government land and registration sites. Store them in a **private Google Drive** folder named after the public property ID (for example `BLR-PLT-01`). Share files only after a document request is reviewed.
+For each listing, collect **on-screen previews** from official government land and registration sites. Store them in a **private Google Drive** folder named after the public property ID (for example `BLR-PLT-01`). Share files only after an enquiry is reviewed.
 
 This pack is for due-diligence readiness. It is not a public download library.
 
@@ -127,9 +127,9 @@ Examples:
 
 `00-index.txt` should list: public ID, village or ward, survey or PID (private), portals checked, date, what was captured, what was missing, who captured it.
 
-## After a buyer document request
+## After a buyer enquiry
 
-1. Open Demand desk, Recent leads, type `document-request`.
+1. Open Demand desk, Recent leads, type `enquiry`.
 2. Confirm the person and the property ID.
 3. Copy only the files you are willing to share into `04-ready-to-share`. Watermark if the owner wants that.
 4. Share that subfolder **view-only** to the buyer email. Do not share the whole listing folder.
@@ -141,4 +141,4 @@ If a later parcel is outside Karnataka, use that state's official IGR and land-r
 
 ## Do not put on the website
 
-Survey numbers, deed numbers, owner names, Aadhaar or PAN, raw title PDFs, or any Google Drive URL. Public pages keep the reference ID and a non-sensitive summary. Buyers use Request documents.
+Survey numbers, deed numbers, owner names, Aadhaar or PAN, raw title PDFs, or any Google Drive URL. Public pages keep the reference ID and a non-sensitive summary. Buyers use Contact.

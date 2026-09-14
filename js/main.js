@@ -407,9 +407,6 @@
       '<a class="btn btn-secondary" href="' +
       escapeHtml(pageUrl("photos/", { id: prop.id })) +
       '">View photos</a>' +
-      '<a class="btn btn-secondary" href="' +
-      escapeHtml(pageUrl("request-documents/", { id: prop.id })) +
-      '">Request documents</a>' +
       '<button type="button" class="btn btn-primary" data-popup-interest>I\'m interested</button></div></div>' +
       '<div class="popup-view" data-popup-view="interest" hidden>' +
       interestBar +
@@ -928,9 +925,6 @@
       '<a class="btn btn-secondary" href="' +
       escapeHtml(pageUrl("photos/", { id: prop.id })) +
       '">View photos</a>' +
-      '<a class="btn btn-secondary" href="' +
-      escapeHtml(pageUrl("request-documents/", { id: prop.id })) +
-      '">Request documents</a>' +
       '<a class="btn btn-secondary" href="' +
       escapeHtml(pageUrl("site-visit/", { id: prop.id })) +
       '">Request a site visit</a>' +

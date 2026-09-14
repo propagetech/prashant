@@ -1,6 +1,6 @@
 # Prashant Properties
 
-Public map catalogue of land parcels for sale. Tap a pin to inspect a listing, then enquire, request documents, book a site visit, or submit an offer.
+Public map catalogue of land parcels for sale. Tap a pin to inspect a listing, then enquire, book a site visit, or submit an offer.
 
 This is a static HTML site (Cloudflare Pages) plus an optional AWS SAM API for leads, unique views, active viewers, and listing status. See [docs/redesign-decisions.md](docs/redesign-decisions.md) and [backend/DEPLOY.md](backend/DEPLOY.md).
 

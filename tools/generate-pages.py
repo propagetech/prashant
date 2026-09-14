@@ -13,7 +13,6 @@ NAV = [
     ("how", "How it works", "how-it-works/"),
     ("faq", "FAQ", "faq/"),
     ("contact", "Contact", "contact/"),
-    ("docs", "Request documents", "request-documents/"),
 ]
 
 
@@ -30,7 +29,7 @@ def asset(depth, path):
 
 def header(depth, current):
     home = p(depth, "HOME")
-    docs = p(depth, "request-documents/")
+    contact = p(depth, "contact/")
     items = []
     for key, label, rel in NAV:
         href = p(depth, rel)
@@ -46,7 +45,7 @@ def header(depth, current):
 {nav}
       </ul>
     </nav>
-    <a class="btn btn-primary header-cta" href="{docs}">Request documents</a>
+    <a class="btn btn-primary header-cta" href="{contact}">Enquire</a>
   </div>
 </header>"""
 
@@ -127,7 +126,7 @@ home_schema = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": BRAND,
-    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire, request documents, or submit an offer.",
+    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire or submit an offer.",
 }
 
 faq_qas = [
@@ -137,11 +136,11 @@ faq_qas = [
     ),
     (
         "Why do listings use codes like BLR-PLT-01?",
-        "Public pages use a property reference instead of survey numbers or ownership details. Sensitive records are shared only after a document request is reviewed.",
+        "Public pages use a property reference instead of survey numbers or ownership details. Sensitive records stay off this site. Use Contact if you need more information.",
     ),
     (
         "Can I download sale deeds from this site?",
-        "No. Sale deeds, encumbrance certificates, RTC extracts, and identity documents are not published here. You can request access. Approved buyers receive view-only files, not a public link.",
+        "No. Sale deeds, encumbrance certificates, RTC extracts, and identity documents are not published here. Use Contact if you need more information.",
     ),
     (
         "What do the view counts mean?",
@@ -174,7 +173,7 @@ pages.append((
     <div class="wrap">
       <p class="eyebrow">Properties for sale</p>
       <h1>Inspect each parcel on the map</h1>
-      <p class="lede">Click a coloured land boundary, not just a pin. Each listing uses a public reference ID, photos, and listing date. Title papers stay off this page until you request them.</p>
+      <p class="lede">Click a coloured land boundary, not just a pin. Each listing uses a public reference ID, photos, and listing date. Title papers stay off this page.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#listings">View listings</a>
         <a class="btn btn-secondary" href="how-it-works/">How it works</a>
@@ -193,7 +192,7 @@ pages.append((
         <div class="map-empty" id="map-empty">
           <p class="eyebrow">Catalogue</p>
           <h2>Listings are being prepared</h2>
-          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how document access and offers work, or send a general enquiry.</p>
+          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how visits and offers work, or send a general enquiry.</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="contact/">Send an enquiry</a>
             <a class="btn btn-secondary" href="how-it-works/">How it works</a>
@@ -331,42 +330,6 @@ def form_page(title_text, h1, lede, form_type, extra_fields, submit_label):
 
 
 pages.append((
-    ROOT / "request-documents" / "index.html",
-    1,
-    "Request documents",
-    "Request controlled access to property records. Sensitive files are not public links.",
-    "contact",
-    form_page(
-        "Request documents",
-        "Request documents",
-        "Photos and a basic summary can be public. Sale deeds, EC, RTC, title chain, and identity documents are shared only after review, usually as view-only files to your email.",
-        "document-request",
-        [
-            """<label>Intended use
-          <select name="buyerType" required>
-            <option value="">Select</option>
-            <option>Self-use</option>
-            <option>Investor</option>
-            <option>Broker</option>
-          </select>
-        </label>""",
-            """<label>Expected purchase timeline
-          <select name="timeline" required>
-            <option value="">Select</option>
-            <option>Immediate</option>
-            <option>Within 3 months</option>
-            <option>3 to 6 months</option>
-            <option>Exploring</option>
-          </select>
-        </label>""",
-        ],
-        "Submit document request",
-    ),
-    None,
-    "",
-))
-
-pages.append((
     ROOT / "submit-offer" / "index.html",
     1,
     "Submit an offer",
@@ -450,7 +413,7 @@ pages.append((
     ROOT / "how-it-works" / "index.html",
     1,
     "How it works",
-    "How to inspect a parcel on the map, request documents, visit, and offer.",
+    "How to inspect a parcel on the map, enquire, visit, and offer.",
     "how",
     """  <section class="hero">
     <div class="wrap">
@@ -471,8 +434,8 @@ pages.append((
           <p>Photographs and a basic summary can be public. Original legal files are not.</p>
         </li>
         <li>
-          <h2>Request documents</h2>
-          <p>We review the request, then share view-only files with your email if it is appropriate.</p>
+          <h2>Send an enquiry</h2>
+          <p>Use Contact or I am interested on a listing. We reply privately. Legal files stay off the public site.</p>
         </li>
         <li>
           <h2>Visit and offer</h2>

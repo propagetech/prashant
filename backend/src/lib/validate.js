@@ -12,7 +12,7 @@ export function validateSubmission(body) {
     return { honeypot: true };
   }
   const formType = clip(body.formType, 40);
-  const allowed = ["enquiry", "document-request", "site-visit", "offer", "interest"];
+  const allowed = ["enquiry", "site-visit", "offer", "interest"];
   if (!allowed.includes(formType)) {
     return { error: "Unknown form type" };
   }
