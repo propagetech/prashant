@@ -1389,22 +1389,45 @@
     });
   }
 
+  function listingOpenButtons() {
+    return $$("[data-open-listings]");
+  }
+
+  function visibleListingOpenButton() {
+    return listingOpenButtons().find(function (btn) {
+      return btn.offsetParent !== null;
+    });
+  }
+
+  function setListingButtonsExpanded(open) {
+    listingOpenButtons().forEach(function (btn) {
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+
   function setupNav() {
     const toggle = $(".nav-toggle");
     const nav = $("#site-nav");
     if (!toggle || !nav) {
       return;
     }
-    toggle.addEventListener("click", function () {
-      const open = !nav.classList.contains("is-open");
+    function setNavOpen(open) {
       nav.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      document.body.classList.toggle("is-nav-open", open);
+    }
+    toggle.addEventListener("click", function () {
+      setNavOpen(!nav.classList.contains("is-open"));
+    });
+    nav.addEventListener("click", function (event) {
+      if (event.target.closest("a")) {
+        setNavOpen(false);
+      }
     });
   }
 
   function openListingsPanel() {
     const panel = $("#listings");
-    const openBtn = $("#map-all-btn");
     const closeBtn = $("#listings-close");
     if (!panel) {
       return;
@@ -1415,9 +1438,7 @@
     if (mapSection) {
       mapSection.setAttribute("aria-hidden", "true");
     }
-    if (openBtn) {
-      openBtn.setAttribute("aria-expanded", "true");
-    }
+    setListingButtonsExpanded(true);
     if (closeBtn) {
       closeBtn.focus();
     }
@@ -1425,7 +1446,6 @@
 
   function closeListingsPanel() {
     const panel = $("#listings");
-    const openBtn = $("#map-all-btn");
     if (!panel || panel.hidden) {
       return;
     }
@@ -1435,8 +1455,9 @@
     if (mapSection) {
       mapSection.removeAttribute("aria-hidden");
     }
+    setListingButtonsExpanded(false);
+    const openBtn = visibleListingOpenButton();
     if (openBtn) {
-      openBtn.setAttribute("aria-expanded", "false");
       openBtn.focus();
     }
     window.requestAnimationFrame(function () {
@@ -1445,14 +1466,16 @@
   }
 
   function setupListingsPanel() {
-    const openBtn = $("#map-all-btn");
+    const openBtns = listingOpenButtons();
     const closeBtn = $("#listings-close");
     const panel = $("#listings");
-    if (!openBtn || !panel || openBtn.dataset.bound === "1") {
+    if (!openBtns.length || !panel || panel.dataset.bound === "1") {
       return;
     }
-    openBtn.dataset.bound = "1";
-    openBtn.addEventListener("click", openListingsPanel);
+    panel.dataset.bound = "1";
+    openBtns.forEach(function (openBtn) {
+      openBtn.addEventListener("click", openListingsPanel);
+    });
     if (closeBtn) {
       closeBtn.addEventListener("click", closeListingsPanel);
     }

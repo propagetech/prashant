@@ -64,7 +64,7 @@
         <div class="map-shell" id="map-shell">
           <div class="map-chrome">
             <p class="map-hint">Tap a pin</p>
-            <button type="button" class="map-all-btn" id="map-all-btn" aria-expanded="false" aria-controls="listings">All properties</button>
+            <button type="button" class="map-all-btn" id="map-all-btn" data-open-listings aria-expanded="false" aria-controls="listings">All properties</button>
           </div>
           <div id="property-map" role="region" aria-label="Property map"></div>
           <p class="map-disclaimer">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
@@ -80,7 +80,10 @@
             <p class="eyebrow">Map</p>
             <h2>Interactive map is unavailable</h2>
             <p>Listings still appear as a list. Open All properties, or wait until Google Maps accepts this domain.</p>
-            <p id="map-place-link"></p>
+            <div class="hero-actions">
+              <button type="button" class="btn btn-primary" data-open-listings aria-expanded="false" aria-controls="listings">All properties</button>
+              <span id="map-place-link"></span>
+            </div>
           </div>
         </div>
       </div>
