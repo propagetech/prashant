@@ -14,6 +14,7 @@
   let mapInstance = null;
   let mapExpandBound = false;
   let showListingById = null;
+  let closeActivePopup = function () {};
 
   function $(sel, root) {
     return (root || document).querySelector(sel);
@@ -502,37 +503,10 @@
     }
   }
 
-  function centerPopupOnMap(map) {
-    if (!map) {
-      return;
-    }
-    const mapEl = map.getDiv();
-    const iwCard = mapEl && mapEl.querySelector(".gm-style-iw-c");
-    if (!mapEl || !iwCard) {
-      return;
-    }
-    const mapRect = mapEl.getBoundingClientRect();
-    const iwRect = iwCard.getBoundingClientRect();
-    const dx = iwRect.left + iwRect.width / 2 - (mapRect.left + mapRect.width / 2);
-    const dy = iwRect.top + iwRect.height / 2 - (mapRect.top + mapRect.height / 2);
-    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
-      return;
-    }
-    map.panBy(dx, dy);
-  }
-
   function scheduleRelayout(root) {
-    const map = mapInstance;
     relayoutPopup(root);
     requestAnimationFrame(function () {
       relayoutPopup(root);
-      centerPopupOnMap(map);
-      if (map && window.google && window.google.maps) {
-        google.maps.event.addListenerOnce(map, "idle", function () {
-          relayoutPopup(root);
-          centerPopupOnMap(map);
-        });
-      }
     });
   }
 
@@ -648,6 +622,10 @@
         bindHeaderBack(header);
       }
       scheduleRelayout(root);
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      if (coarse && name === "interest") {
+        return;
+      }
       const focusEl = name === "interest" ? nameInput : openBtn;
       if (focusEl && typeof focusEl.focus === "function") {
         try {
@@ -701,6 +679,10 @@
           }
         );
         form.reset();
+        if (document.activeElement && form.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+        closeActivePopup();
       } catch (err) {
         return;
       }
@@ -884,6 +866,12 @@
         }
       }
 
+      closeActivePopup = function () {
+        hideOutline();
+        info.close();
+        setPopupOpen(false);
+      };
+
       function openInfo(prop, at) {
         recordView(prop.id);
         startPresence(prop.id);
@@ -1026,9 +1014,7 @@
       }
       info.addListener("closeclick", hideOutline);
       map.addListener("click", function () {
-        hideOutline();
-        info.close();
-        setPopupOpen(false);
+        closeActivePopup();
       });
       showListingById = function (id) {
         const prop = drawable.find(function (row) {
