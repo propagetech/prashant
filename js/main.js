@@ -526,15 +526,16 @@
         ? "</p><p>" + escapeHtml(prop.boundaryNote)
         : "") +
       '</p><details class="more-facts">' +
-      "<summary>Listing activity</summary>" +
-      '<div class="more-facts-body">' +
-      "<p><strong>Listed:</strong> " +
+      '<summary aria-label="Listing activity" title="Listing activity">&hellip;</summary>' +
+      '<div class="stats-row more-facts-body">' +
+      '<span>Listed <span class="stat-v">' +
       escapeHtml(formatDate(prop.listingDate)) +
-      '</p><p><strong>Views:</strong> <span id="views-' +
+      '</span></span><span>Views <span class="stat-v" id="views-' +
       id +
-      '">Loading</span></p><p><strong>Active viewers:</strong> <span id="live-' +
+      '">Checking</span></span>' +
+      '<span title="Sessions with a heartbeat in the last five minutes">Active <span class="stat-v" id="live-' +
       id +
-      '">Loading</span></p></div></details><div class="popup-actions">' +
+      '">Checking</span></span></div></details><div class="popup-actions">' +
       (prop.mapsUrl
         ? '<a class="btn btn-secondary" href="' +
           escapeHtml(prop.mapsUrl) +
@@ -652,6 +653,13 @@
     });
   }
 
+  function bandCount(n) {
+    if (!n) {
+      return "None";
+    }
+    return n <= 3 ? "1 to 3" : String(n);
+  }
+
   async function loadPropertyStats(propertyId) {
     try {
       const data = await apiSend("/property-stats?id=" + encodeURIComponent(propertyId), { method: "GET" });
@@ -661,10 +669,10 @@
       const views = $("#views-" + propertyId) || $("#stat-views");
       const live = $("#live-" + propertyId) || $("#stat-live");
       if (views) {
-        views.textContent = data.uniqueViewsLabel || "Not yet counted";
+        views.textContent = bandCount(data.uniqueViews);
       }
       if (live) {
-        live.textContent = data.activeLabel || "No active sessions in the last five minutes";
+        live.textContent = bandCount(data.activeSessions);
       }
     } catch (err) {
       const views = $("#views-" + propertyId) || $("#stat-views");

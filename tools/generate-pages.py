@@ -255,11 +255,11 @@ pages.append((
       <p><span class="status status-available" id="prop-status" hidden></span></p>
       <div class="card-grid" id="prop-facts"></div>
       <details class="more-facts" id="prop-stats">
-        <summary>Listing activity</summary>
+        <summary aria-label="Listing activity" title="Listing activity">&hellip;</summary>
         <div class="stats-row muted">
-          <p>Listed: <span id="stat-listed">Not published</span></p>
-          <p>Property-page views: <span id="stat-views">Not yet counted</span></p>
-          <p>Active viewers: <span id="stat-live">Defined as sessions with a heartbeat in the last five minutes</span></p>
+          <span>Listed <span class="stat-v" id="stat-listed">Not published</span></span>
+          <span>Views <span class="stat-v" id="stat-views">None yet</span></span>
+          <span title="Sessions with a heartbeat in the last five minutes">Active <span class="stat-v" id="stat-live">None</span></span>
         </div>
       </details>
       <div class="hero-actions action-row" id="prop-actions"></div>

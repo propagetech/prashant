@@ -1164,25 +1164,54 @@ textarea {
 }
 
 .stats-row {
-  display: grid;
-  gap: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+
+.stats-row > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+}
+
+/* Trailing separator, so a wrapped line never opens with a stray dot. */
+.stats-row > span:not(:last-child)::after {
+  content: "\00b7";
+  opacity: 0.55;
+}
+
+.stats-row .stat-v {
+  color: var(--ink);
 }
 
 .more-facts {
-  margin: var(--space-3) 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 .more-facts summary {
   display: inline-flex;
   align-items: center;
-  min-height: var(--tap);
-  padding: 0;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   cursor: pointer;
   list-style: none;
   color: var(--gold);
-  font: 600 var(--fs-sm) / 1.2 var(--font-body);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font: 600 var(--fs-md) / 1 var(--font-body);
+  letter-spacing: 0.16em;
+}
+
+.more-facts summary:hover,
+.more-facts summary:focus-visible {
+  color: var(--accent-bright);
+  border-color: var(--header-line);
 }
 
 .more-facts summary::-webkit-details-marker,
@@ -1193,7 +1222,24 @@ textarea {
 
 .more-facts .more-facts-body,
 .more-facts .stats-row {
+  margin-top: var(--space-2);
+}
+
+/* Dossier header stack: keep status, facts, activity and actions close together. */
+#prop-facts {
+  gap: var(--space-3);
+}
+
+#prop-facts .card {
+  padding: var(--space-4);
+}
+
+#prop-stats {
   margin-top: var(--space-3);
+}
+
+#prop-actions {
+  margin-top: var(--space-4);
 }
 
 .property-popup .more-facts summary {
@@ -1214,11 +1260,23 @@ textarea {
 }
 
 .property-popup p {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-1);
 }
 
 .property-popup h3 {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-1);
+}
+
+.property-popup .stats-row {
+  font-size: var(--fs-xs);
+}
+
+.property-popup .stats-row .stat-v {
+  color: hsl(32 18% 12%);
+}
+
+.property-popup .popup-actions {
+  margin-top: var(--space-3);
 }
 
 .property-popup a:not(.btn) {
