@@ -444,9 +444,7 @@
         statusClass(prop.status) +
         '">' +
         escapeHtml(displayStatus(prop.status)) +
-        "</span></p><p><a class=\"btn btn-primary\" href=\"" +
-        escapeHtml(pageUrl("property/", { id: prop.id })) +
-        '">Open dossier</a></p>';
+        "</span></p>";
       list.appendChild(li);
     });
   }
