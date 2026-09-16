@@ -481,14 +481,41 @@
       el.style.maxHeight = "none";
     });
     if (iwBody) {
-      iwBody.style.overflow = "auto";
+      iwBody.style.overflow = "visible";
     }
   }
 
+  function centerPopupOnMap(map) {
+    if (!map) {
+      return;
+    }
+    const mapEl = map.getDiv();
+    const iwCard = mapEl && mapEl.querySelector(".gm-style-iw-c");
+    if (!mapEl || !iwCard) {
+      return;
+    }
+    const mapRect = mapEl.getBoundingClientRect();
+    const iwRect = iwCard.getBoundingClientRect();
+    const dx = iwRect.left + iwRect.width / 2 - (mapRect.left + mapRect.width / 2);
+    const dy = iwRect.top + iwRect.height / 2 - (mapRect.top + mapRect.height / 2);
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
+      return;
+    }
+    map.panBy(dx, dy);
+  }
+
   function scheduleRelayout(root) {
+    const map = mapInstance;
     relayoutPopup(root);
     requestAnimationFrame(function () {
       relayoutPopup(root);
+      centerPopupOnMap(map);
+      if (map && window.google && window.google.maps) {
+        google.maps.event.addListenerOnce(map, "idle", function () {
+          relayoutPopup(root);
+          centerPopupOnMap(map);
+        });
+      }
     });
   }
 
@@ -605,11 +632,21 @@
       }
       scheduleRelayout(root);
       const focusEl = name === "interest" ? nameInput : openBtn;
-      if (focusEl) {
-        focusEl.focus();
+      if (focusEl && typeof focusEl.focus === "function") {
+        try {
+          focusEl.focus({ preventScroll: true });
+        } catch (err) {
+          focusEl.focus();
+        }
       }
     }
 
+    const facts = $(".more-facts", root);
+    if (facts) {
+      facts.addEventListener("toggle", function () {
+        scheduleRelayout(root);
+      });
+    }
     openBtn.addEventListener("click", function () {
       showView("interest");
     });
@@ -813,6 +850,7 @@
       let popupProp = null;
       const info = new google.maps.InfoWindow({
         maxWidth: Math.min(340, window.innerWidth - 40),
+        disableAutoPan: true,
       });
       info.addListener("domready", function () {
         bindPopupInterestForm(info, popupProp);
@@ -973,6 +1011,7 @@
       map.addListener("click", function () {
         hideOutline();
         info.close();
+        setPopupOpen(false);
       });
       setupMapExpand();
     });

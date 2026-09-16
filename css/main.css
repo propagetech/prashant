@@ -1194,18 +1194,16 @@ textarea {
 
 .more-facts summary {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  cursor: pointer;
-  list-style: none;
-  color: var(--gold);
-  font: 600 var(--fs-md) / 1 var(--font-body);
-  letter-spacing: 0.16em;
+    align-items: center;
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0 0 16px 0;
+    border-radius: var(--radius);
+    cursor: pointer;
+    list-style: none;
+    font: 600 var(--fs-md) / 1 var(--font-body);
+    letter-spacing: 0.16em;
+    line-height: 1px;
 }
 
 .more-facts summary:hover,
@@ -1406,10 +1404,22 @@ textarea {
   text-decoration: underline;
 }
 
+.map-shell.is-popup-open {
+  overflow: visible;
+  z-index: 8;
+}
+
+.map-shell.is-popup-open #property-map,
+.map-shell.is-popup-open .gm-style,
+.map-shell.is-popup-open .gm-style-iw-c,
+.map-shell.is-popup-open .gm-style-iw-d {
+  overflow: visible !important;
+}
+
 .gm-style-iw-c {
   padding: 0 !important;
   height: auto !important;
-  max-height: min(78vh, 36rem) !important;
+  max-height: none !important;
 }
 
 .gm-style-iw-chr {
@@ -1437,13 +1447,13 @@ textarea {
 
 .gm-style-iw-d {
   flex: 0 1 auto !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  overflow: visible !important;
   max-height: none !important;
   padding: 2px 12px 10px !important;
 }
 
 .gm-style-iw-chr .gm-ui-hover-effect {
+  
   position: relative !important;
   top: auto !important;
   right: auto !important;
@@ -1451,7 +1461,9 @@ textarea {
   width: var(--tap) !important;
   height: var(--tap) !important;
 }
-
+.gm-ui-hover-effect>span{
+  background-color: #000000;
+}
 .gmnoprint.gm-style-mtc {
   z-index: 5 !important;
 }
