@@ -542,9 +542,6 @@
           escapeHtml(prop.mapsUrl) +
           '" target="_blank" rel="noopener">Get directions</a>'
         : "") +
-      '<a class="btn btn-secondary" href="' +
-      escapeHtml(pageUrl("photos/", { id: prop.id })) +
-      '">View photos</a>' +
       '<button type="button" class="btn btn-primary" data-popup-interest>I\'m interested</button></div></div>' +
       '<div class="popup-view" data-popup-view="interest" hidden>' +
       interestBar +
@@ -1073,64 +1070,11 @@
         : "") +
       (prop.mapsUrl
         ? '<a class="btn btn-secondary" href="' + escapeHtml(prop.mapsUrl) + '" target="_blank" rel="noopener">Get directions</a>'
-        : "") +
-      '<a class="btn btn-secondary" href="' +
-      escapeHtml(pageUrl("photos/", { id: prop.id })) +
-      '">View photos</a>' +
-      '<a class="btn btn-secondary" href="' +
-      escapeHtml(pageUrl("site-visit/", { id: prop.id })) +
-      '">Request a site visit</a>' +
-      '<a class="btn btn-primary" href="' +
-      escapeHtml(pageUrl("contact/", { id: prop.id })) +
-      '">Enquire</a>';
+        : "");
     recordView(prop.id);
     startPresence(prop.id);
     loadPropertyStats(prop.id);
     drawMap([prop], prop.id);
-  }
-
-  function fillPhotos(properties) {
-    const id = queryId();
-    const prop = properties.find(function (p) {
-      return p.id === id;
-    });
-    const gallery = $("#photo-gallery");
-    const empty = $("#photos-empty");
-    if (!gallery) {
-      return;
-    }
-    if (prop) {
-      $("#prop-id").textContent = prop.id;
-      $("#prop-title").textContent = (prop.title || prop.id) + " photographs";
-    }
-    const photos = (prop && prop.photos) || [];
-    if (!photos.length) {
-      empty.hidden = false;
-      return;
-    }
-    empty.hidden = true;
-    gallery.innerHTML = photos
-      .map(function (src, i) {
-        const href = src.indexOf("http") === 0 ? src : assetUrl(src.replace(/^\//, ""));
-        return (
-          '<a href="' +
-          escapeHtml(href) +
-          '"><figure><img src="' +
-          escapeHtml(href) +
-          '" alt="Photograph ' +
-          (i + 1) +
-          " of " +
-          escapeHtml(prop.id) +
-          '"><figcaption>Photograph ' +
-          (i + 1) +
-          "</figcaption></figure></a>"
-        );
-      })
-      .join("");
-    if (prop) {
-      recordView(prop.id);
-      startPresence(prop.id);
-    }
   }
 
   function resizeMap() {
@@ -1447,9 +1391,7 @@
       properties = [];
     }
     renderList(properties);
-    if ($("#photo-gallery")) {
-      fillPhotos(properties);
-    } else if ($("#prop-facts")) {
+    if ($("#prop-facts")) {
       fillPropertyPage(properties);
     } else {
       drawMap(properties);

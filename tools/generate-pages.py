@@ -10,7 +10,6 @@ NAV = [
     ("properties", "Properties", "HOME"),
     ("how", "How it works", "how-it-works/"),
     ("faq", "FAQ", "faq/"),
-    ("contact", "Contact", "contact/"),
 ]
 
 
@@ -27,7 +26,6 @@ def asset(depth, path):
 
 def header(depth, current):
     home = p(depth, "HOME")
-    contact = p(depth, "contact/")
     items = []
     for key, label, rel in NAV:
         href = p(depth, rel)
@@ -47,7 +45,6 @@ def header(depth, current):
 {nav}
       </ul>
     </nav>
-    <a class="btn btn-primary header-cta" href="{contact}">Enquire</a>
   </div>
 </header>"""
 
@@ -64,8 +61,7 @@ def footer(depth):
       <p class="eyebrow">Explore</p>
       <p><a href="{home}">Properties map</a><br>
       <a href="{p(depth, 'how-it-works/')}">How it works</a><br>
-      <a href="{p(depth, 'faq/')}">FAQ</a><br>
-      <a href="{p(depth, 'contact/')}">Contact</a></p>
+      <a href="{p(depth, 'faq/')}">FAQ</a></p>
     </div>
     <div>
       <p class="eyebrow">Legal</p>
@@ -149,7 +145,7 @@ home_schema = {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": BRAND,
-    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing, then enquire.",
+    "description": "Public map of land parcels for sale. Tap a pin to inspect a listing.",
 }
 
 faq_qas = [
@@ -159,11 +155,11 @@ faq_qas = [
     ),
     (
         "Why do listings use codes like BLR-PLT-01?",
-        "Public pages use a property reference instead of survey numbers or ownership details. Sensitive records stay off this site. Use Contact if you need more information.",
+        "Public pages use a property reference instead of survey numbers or ownership details. Sensitive records stay off this site. Use I'm interested on a listing if you need more information.",
     ),
     (
         "Can I download sale deeds from this site?",
-        "No. Sale deeds, encumbrance certificates, RTC extracts, and identity documents are not published here. Use Contact if you need more information.",
+        "No. Sale deeds, encumbrance certificates, RTC extracts, and identity documents are not published here. Use I'm interested on a listing if you need more information.",
     ),
     (
         "What do the view counts mean?",
@@ -171,7 +167,7 @@ faq_qas = [
     ),
     (
         "How do I visit a plot?",
-        "Open the listing and use Request a site visit, or Get directions for the approximate location. Confirm access with us before travelling.",
+        "Open the listing and use Get directions for the approximate location. Use I'm interested on a listing to confirm access before travelling.",
     ),
 ]
 
@@ -215,10 +211,9 @@ pages.append((
         <div class="map-empty" id="map-empty">
           <p class="eyebrow">Catalogue</p>
           <h2>Listings are being prepared</h2>
-          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how visits work, or send a general enquiry.</p>
+          <p>Parcel boundaries and photographs will appear here once they are supplied. You can still read how visits work.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="contact/">Send an enquiry</a>
-            <a class="btn btn-secondary" href="how-it-works/">How it works</a>
+            <a class="btn btn-primary" href="how-it-works/">How it works</a>
           </div>
         </div>
         <div class="map-fallback" id="map-fallback" hidden>
@@ -302,105 +297,15 @@ pages.append((
 ))
 
 pages.append((
-    ROOT / "photos" / "index.html",
-    1,
-    "Property photographs",
-    "Photograph gallery for a public land listing.",
-    "properties",
-    """  <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow" id="prop-id">Photos</p>
-      <h1 id="prop-title">Photographs</h1>
-      <p class="lede">Public photos only. Layout sketches and legal plans are not published here.</p>
-      <div class="gallery" id="photo-gallery"></div>
-      <p class="muted" id="photos-empty">No photographs are published for this reference yet.</p>
-      <p><a class="btn btn-secondary" href="../">Back to the map</a></p>
-    </div>
-  </section>
-""",
-    None,
-    "",
-))
-
-
-def form_page(title_text, h1, lede, form_type, extra_fields, submit_label):
-    extra = "\n".join(extra_fields)
-    return f"""  <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow">Buyers</p>
-      <h1>{h1}</h1>
-      <p class="lede">{lede}</p>
-      <form class="form js-lead-form" method="post" data-form-type="{form_type}" action="../contact/">
-        <input class="hp" type="text" name="website_hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <label>Property ID
-          <input name="propertyId" id="field-property-id" required maxlength="40" placeholder="BLR-PLT-01">
-        </label>
-        <label>Name
-          <input name="name" required maxlength="80" autocomplete="name">
-        </label>
-        <label>Mobile number
-          <input name="mobile" required maxlength="20" autocomplete="tel">
-        </label>
-        <label>Email
-          <input name="email" type="email" required maxlength="120" autocomplete="email">
-        </label>
-        {extra}
-        <label>Message
-          <textarea name="message" maxlength="2000"></textarea>
-        </label>
-        <label class="consent"><input type="checkbox" name="consent" value="yes" required> I agree to be contacted about this property and to the processing described in the privacy notice. This box is not pre-ticked.</label>
-        <div class="g-recaptcha" data-sitekey=""></div>
-        <button class="btn btn-primary" type="submit">{submit_label}</button>
-        <p class="form-status" role="status"></p>
-        <p class="muted js-mailto-fallback" hidden></p>
-      </form>
-    </div>
-  </section>
-"""
-
-
-
-
-pages.append((
-    ROOT / "site-visit" / "index.html",
-    1,
-    "Request a site visit",
-    "Ask to inspect a listed parcel in person.",
-    "contact",
-    form_page(
-        "Site visit",
-        "Request a site visit",
-        "Tell us which parcel and a preferred date. A page view is not a site visit. We confirm access before you travel.",
-        "site-visit",
-        [
-            """<label>Preferred site-visit date
-          <input name="visitDate" type="date">
-        </label>""",
-            """<label>Buyer type
-          <select name="buyerType">
-            <option value="">Select</option>
-            <option>Self-use</option>
-            <option>Investor</option>
-            <option>Agent</option>
-          </select>
-        </label>""",
-        ],
-        "Request visit",
-    ),
-    None,
-    "",
-))
-
-pages.append((
     ROOT / "how-it-works" / "index.html",
     1,
     "How it works",
-    "How to inspect a parcel on the map, enquire, and visit.",
+    "How to inspect a parcel on the map.",
     "how",
     """  <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Process</p>
-      <h1>From private viewing to enquiry</h1>
+      <h1>From private viewing to interest</h1>
       <p class="lede">A short path designed for serious buyers. No public Drive links. No manufactured urgency.</p>
       <ol class="steps">
         <li>
@@ -416,12 +321,12 @@ pages.append((
           <p>Photographs and a basic summary can be public. Original legal files are not.</p>
         </li>
         <li>
-          <h2>Send an enquiry</h2>
-          <p>Use Contact or I am interested on a listing. We reply privately. Legal files stay off the public site.</p>
+          <h2>Register interest</h2>
+          <p>Use I'm interested on a listing. We reply privately. Legal files stay off the public site.</p>
         </li>
         <li>
           <h2>Visit the land</h2>
-          <p>Book a site visit if you want to see the parcel in person. Status may move from Available to Reserved to Sold.</p>
+          <p>Use I'm interested if you want to see the parcel in person. Status may move from Available to Reserved to Sold.</p>
         </li>
       </ol>
       <p><a class="btn btn-primary" href="../">View properties</a></p>
@@ -461,38 +366,11 @@ pages.append((
 ))
 
 pages.append((
-    ROOT / "contact" / "index.html",
-    1,
-    "Contact",
-    "Send an enquiry about a land listing. Include the property ID if you have one.",
-    "contact",
-    form_page(
-        "Contact",
-        "Contact",
-        "Use this form to enquire about a listing. Include the property ID if you have one. We will reply using the mobile number and email you provide.",
-        "enquiry",
-        [
-            """<label>Buyer type
-          <select name="buyerType">
-            <option value="">Select</option>
-            <option>Self-use</option>
-            <option>Investor</option>
-            <option>Agent</option>
-          </select>
-        </label>""",
-        ],
-        "Send enquiry",
-    ),
-    None,
-    "",
-))
-
-pages.append((
     ROOT / "privacy" / "index.html",
     1,
     "Privacy notice",
     "What this site collects, why, how long, and how to withdraw consent.",
-    "contact",
+    "",
     """  <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Legal</p>
@@ -507,7 +385,7 @@ pages.append((
       <h2>Retention</h2>
       <p>Anonymous analytics: delete or aggregate after 90 days. Unqualified enquiries: review after 6 to 12 months. Serious buyer records: retain only as needed for the transaction and legal duties.</p>
       <h2>Your choices</h2>
-      <p>The overlay stays until you press Agree to analytics. To withdraw later, delete that cookie in your browser or use the contact form.</p>
+      <p>The overlay stays until you press Agree to analytics. To withdraw later, delete that cookie in your browser.</p>
     </div>
   </section>
 """,
@@ -520,7 +398,7 @@ pages.append((
     1,
     "Terms",
     "Terms for using the public listing map and sending enquiries.",
-    "contact",
+    "",
     """  <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Legal</p>
@@ -540,7 +418,7 @@ pages.append((
     1,
     "Disclaimer",
     "Map boundaries are not a cadastral survey. Buyers must verify title independently.",
-    "contact",
+    "",
     """  <section class="hero">
     <div class="wrap">
       <p class="eyebrow">Legal</p>
