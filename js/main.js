@@ -683,7 +683,7 @@
         if (document.activeElement && form.contains(document.activeElement)) {
           document.activeElement.blur();
         }
-        closeActivePopup();
+        resetMapView();
       } catch (err) {
         return;
       }
