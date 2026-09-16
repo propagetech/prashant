@@ -13,6 +13,7 @@
   const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
   let mapInstance = null;
   let mapExpandBound = false;
+  let showListingById = null;
 
   function $(sel, root) {
     return (root || document).querySelector(sel);
@@ -444,9 +445,25 @@
         statusClass(prop.status) +
         '">' +
         escapeHtml(displayStatus(prop.status)) +
-        "</span></p>";
+        "</span></p><p><button type=\"button\" class=\"btn btn-primary\" data-show-on-map=\"" +
+        escapeHtml(prop.id) +
+        '">Show on map</button></p>';
       list.appendChild(li);
     });
+    if (!list.dataset.bound) {
+      list.dataset.bound = "1";
+      list.addEventListener("click", function (event) {
+        const btn = event.target.closest("[data-show-on-map]");
+        if (!btn) {
+          return;
+        }
+        const id = btn.getAttribute("data-show-on-map");
+        closeListingsPanel();
+        if (typeof showListingById === "function") {
+          showListingById(id);
+        }
+      });
+    }
   }
 
   function canUseIwHeader(info) {
@@ -1013,6 +1030,30 @@
         info.close();
         setPopupOpen(false);
       });
+      showListingById = function (id) {
+        const prop = drawable.find(function (row) {
+          return row.id === id;
+        });
+        if (!prop) {
+          return;
+        }
+        showListing(prop, pinOf(prop));
+      };
+      if (!focusId && drawable.length > 1 && document.body.classList.contains("home-page")) {
+        const bounds = new google.maps.LatLngBounds();
+        drawable.forEach(function (prop) {
+          const pin = pinOf(prop);
+          if (pin) {
+            bounds.extend(pin);
+          }
+        });
+        map.fitBounds(bounds, {
+          top: 96,
+          right: 48,
+          bottom: 88,
+          left: 48,
+        });
+      }
       setupMapExpand();
     });
   }
@@ -1129,13 +1170,18 @@
   }
 
   function setupMapExpand() {
-    const shell = $("#map-shell");
-    const btn = $("#map-full-btn");
-    const jump = $(".map-jump");
-    if (!shell || !btn || mapExpandBound) {
+    if (mapExpandBound) {
       return;
     }
     mapExpandBound = true;
+    window.addEventListener("resize", resizeMap);
+    window.addEventListener("orientationchange", resizeMap);
+    const shell = $("#map-shell");
+    const btn = $("#map-full-btn");
+    if (!shell || !btn) {
+      return;
+    }
+    const jump = $(".map-jump");
     let isFull = false;
     let pushedHash = false;
 
@@ -1214,9 +1260,6 @@
         closeFull(false);
       }
     });
-
-    window.addEventListener("resize", resizeMap);
-    window.addEventListener("orientationchange", resizeMap);
 
     if (location.hash === "#map-full") {
       applyFull(true);
@@ -1373,6 +1416,70 @@
     });
   }
 
+  function openListingsPanel() {
+    const panel = $("#listings");
+    const openBtn = $("#map-all-btn");
+    const closeBtn = $("#listings-close");
+    if (!panel) {
+      return;
+    }
+    panel.hidden = false;
+    document.body.classList.add("is-listings-open");
+    const mapSection = $("#map");
+    if (mapSection) {
+      mapSection.setAttribute("aria-hidden", "true");
+    }
+    if (openBtn) {
+      openBtn.setAttribute("aria-expanded", "true");
+    }
+    if (closeBtn) {
+      closeBtn.focus();
+    }
+  }
+
+  function closeListingsPanel() {
+    const panel = $("#listings");
+    const openBtn = $("#map-all-btn");
+    if (!panel || panel.hidden) {
+      return;
+    }
+    panel.hidden = true;
+    document.body.classList.remove("is-listings-open");
+    const mapSection = $("#map");
+    if (mapSection) {
+      mapSection.removeAttribute("aria-hidden");
+    }
+    if (openBtn) {
+      openBtn.setAttribute("aria-expanded", "false");
+      openBtn.focus();
+    }
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(resizeMap);
+    });
+  }
+
+  function setupListingsPanel() {
+    const openBtn = $("#map-all-btn");
+    const closeBtn = $("#listings-close");
+    const panel = $("#listings");
+    if (!openBtn || !panel || openBtn.dataset.bound === "1") {
+      return;
+    }
+    openBtn.dataset.bound = "1";
+    openBtn.addEventListener("click", openListingsPanel);
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeListingsPanel);
+    }
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !panel.hidden) {
+        closeListingsPanel();
+      }
+    });
+    if (location.hash === "#listings") {
+      openListingsPanel();
+    }
+  }
+
   function readCookie(name) {
     const prefix = name + "=";
     const parts = document.cookie.split(";");
@@ -1436,6 +1543,7 @@
       properties = [];
     }
     renderList(properties);
+    setupMapExpand();
     if ($("#prop-facts")) {
       fillPropertyPage(properties);
     } else {
@@ -2475,6 +2583,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     setupTheme();
     setupNav();
+    setupListingsPanel();
     setupConsent();
     if (hasAnalyticsConsent()) {
       bootSite();

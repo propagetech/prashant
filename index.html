@@ -39,7 +39,7 @@
     type="application/ld+json">{"@context": "https://schema.org", "@type": "RealEstateAgent", "name": "Properties", "description": "Public map of land parcels for sale. Tap a pin to inspect a listing."}</script>
 </head>
 
-<body>
+<body class="home-page">
   <header class="site-header">
     <div class="wrap topbar">
       <a class="brand" href="./">Properties</a>
@@ -58,27 +58,16 @@
     </div>
   </header>
   <main class="home-main">
-    <section class="hero home-intro">
-      <div class="wrap">
-        <!-- <p class="script-accent">The Collection</p> -->
-        <h1 class="hero-title">Land presented with discretion</h1>
-        <p class="eyebrow">Private catalogue</p>
-        <p class="lede">Look at land holdings on the map. Open a listing and register interest in private. Public pages never show survey numbers or title files.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#listings">View listings</a>
-          <a class="btn btn-secondary" href="how-it-works/">How it works</a>
-        </div>
-      </div>
-    </section>
+    <h1 class="sr-only">Properties for sale</h1>
     <section class="map-section" id="map">
       <div class="map-bleed">
         <div class="map-shell" id="map-shell">
           <div class="map-chrome">
             <p class="map-hint">Tap a pin</p>
-            <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
+            <button type="button" class="map-all-btn" id="map-all-btn" aria-expanded="false" aria-controls="listings">All properties</button>
           </div>
-          <a class="map-jump" href="#listings">See listings</a>
           <div id="property-map" role="region" aria-label="Property map"></div>
+          <p class="map-disclaimer">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
           <div class="map-empty" id="map-empty">
             <p class="eyebrow">Catalogue</p>
             <h2>Listings are being prepared</h2>
@@ -90,50 +79,29 @@
           <div class="map-fallback" id="map-fallback" hidden>
             <p class="eyebrow">Map</p>
             <h2>Interactive map is unavailable</h2>
-            <p>Listings still appear as cards below. The parcel map loads when Google Maps accepts this domain.</p>
+            <p>Listings still appear as a list. Open All properties, or wait until Google Maps accepts this domain.</p>
             <p id="map-place-link"></p>
           </div>
         </div>
       </div>
-      <div class="wrap">
-        <p class="disclaimer-note">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
-      </div>
     </section>
-    <section class="section" id="listings">
+    <section class="listings-panel section" id="listings" hidden>
       <div class="wrap">
-        <p class="eyebrow">All parcels</p>
-        <h2>Listings</h2>
+        <div class="listings-panel-head">
+          <div>
+            <p class="eyebrow">Catalogue</p>
+            <h2>All properties</h2>
+          </div>
+          <button type="button" class="btn btn-secondary" id="listings-close">Back to map</button>
+        </div>
         <p class="muted" id="listings-empty">No public parcels are published yet. This list stays empty until real listing data is added. It does not use sample plots.</p>
         <ul class="property-list" id="property-list"></ul>
+        <footer class="listings-legal">
+          <p><a href="privacy/">Privacy</a> · <a href="terms/">Terms</a> · <a href="disclaimer/">Disclaimer</a></p>
+        </footer>
       </div>
     </section>
-
   </main>
-  <footer class="site-footer">
-    <div class="wrap footer-grid">
-      <div>
-        <p class="footer-brand">Properties</p>
-        <p>Independent land listings. Public reference IDs only. Title papers stay off this site until a request is approved.</p>
-      </div>
-      <div>
-        <p class="eyebrow">Explore</p>
-        <p><a href="./">Properties map</a><br>
-          <a href="how-it-works/">How it works</a><br>
-          <a href="faq/">FAQ</a>
-        </p>
-      </div>
-      <div>
-        <p class="eyebrow">Legal</p>
-        <p><a href="privacy/">Privacy</a><br>
-          <a href="terms/">Terms</a><br>
-          <a href="disclaimer/">Disclaimer</a>
-        </p>
-      </div>
-    </div>
-    <div class="wrap">
-      <p class="muted">Boundary maps are for location reference only.</p>
-    </div>
-  </footer>
   <div class="consent-banner" id="consent-banner" role="dialog" aria-modal="true" aria-labelledby="consent-title">
     <div class="consent-card">
       <p class="eyebrow" id="consent-title">Before you continue</p>
