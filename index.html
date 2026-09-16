@@ -50,7 +50,6 @@
       <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false">Menu</button>
       <nav id="site-nav" class="site-nav" aria-label="Primary">
         <ul>
-          <li><a href="./" aria-current="page">Properties</a></li>
           <li><a href="how-it-works/">How it works</a></li>
           <li><a href="faq/">FAQ</a></li>
         </ul>
@@ -64,10 +63,12 @@
         <div class="map-shell" id="map-shell">
           <div class="map-chrome">
             <p class="map-hint">Tap a pin</p>
-            <button type="button" class="map-all-btn" id="map-all-btn" data-open-listings aria-expanded="false" aria-controls="listings">All properties</button>
+            <div class="map-chrome-actions">
+              <button type="button" class="map-reset-btn" id="map-reset-btn" aria-label="Reset map to show all listings">Reset</button>
+              <button type="button" class="map-all-btn" id="map-all-btn" data-open-listings aria-expanded="false" aria-controls="listings">All properties</button>
+            </div>
           </div>
           <div id="property-map" role="region" aria-label="Property map"></div>
-          <p class="map-disclaimer">Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.</p>
           <div class="map-empty" id="map-empty">
             <p class="eyebrow">Catalogue</p>
             <h2>Listings are being prepared</h2>

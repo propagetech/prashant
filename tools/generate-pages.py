@@ -7,7 +7,6 @@ BRAND = "Properties"
 ROOT = Path(__file__).resolve().parents[1]
 
 NAV = [
-    ("properties", "Properties", "HOME"),
     ("how", "How it works", "how-it-works/"),
     ("faq", "FAQ", "faq/"),
 ]
@@ -151,7 +150,7 @@ home_schema = {
 faq_qas = [
     (
         "Are the map boundaries a legal survey?",
-        "No. The coloured outline is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.",
+        "No. Boundary shown is for location reference and visual understanding only. Buyers must independently verify survey, title, dimensions, access, encumbrance, zoning, and approvals before buying.",
     ),
     (
         "Why do listings use codes like BLR-PLT-01?",
@@ -270,7 +269,10 @@ pages.append((
       <div class="map-shell" id="map-shell">
         <div class="map-chrome">
           <p class="map-hint">This parcel on the map</p>
-          <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
+          <div class="map-chrome-actions">
+            <button type="button" class="map-reset-btn" id="map-reset-btn" aria-label="Reset map to default view">Reset</button>
+            <button type="button" class="map-full-btn" id="map-full-btn" aria-expanded="false" aria-controls="property-map">Full map</button>
+          </div>
         </div>
         <a class="map-jump" href="#prop-title">Parcel details</a>
         <div id="property-map" role="region" aria-label="This parcel on the map"></div>

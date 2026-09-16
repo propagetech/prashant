@@ -565,6 +565,7 @@ button.btn {
   left: var(--space-3);
   right: var(--space-3);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -574,6 +575,13 @@ button.btn {
 
 .map-chrome > * {
   pointer-events: auto;
+}
+
+.map-chrome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 
 .map-hint {
@@ -590,6 +598,7 @@ button.btn {
 
 .map-full-btn,
 .map-all-btn,
+.map-reset-btn,
 .map-jump {
   display: inline-flex;
   align-items: center;
@@ -609,6 +618,7 @@ button.btn {
 
 .map-full-btn:hover,
 .map-all-btn:hover,
+.map-reset-btn:hover,
 .map-jump:hover {
   color: var(--accent-bright);
 }
@@ -619,20 +629,19 @@ button.btn {
   transform: translateX(-50%);
 }
 
-.map-shell.is-popup-open .map-chrome,
-.map-shell.is-popup-open .map-jump,
-.map-shell.is-popup-open .map-disclaimer {
+.map-shell.is-popup-open .map-hint,
+.map-shell.is-popup-open .map-all-btn,
+.map-shell.is-popup-open .map-full-btn,
+.map-shell.is-popup-open .map-jump {
   visibility: hidden;
   pointer-events: none;
 }
 
 .map-shell:has(#map-empty:not([hidden])) .map-hint,
 .map-shell:has(#map-empty:not([hidden])) .map-jump,
-.map-shell:has(#map-empty:not([hidden])) .map-disclaimer,
 .map-shell:has(#map-empty:not([hidden])) .map-chrome,
 .map-shell:has(#map-fallback:not([hidden])) .map-hint,
 .map-shell:has(#map-fallback:not([hidden])) .map-jump,
-.map-shell:has(#map-fallback:not([hidden])) .map-disclaimer,
 .map-shell:has(#map-fallback:not([hidden])) .map-chrome {
   display: none;
 }
@@ -771,21 +780,6 @@ body.is-map-full .site-header {
 
 .home-page .map-chrome {
   top: calc(var(--header-h) + var(--space-3));
-}
-
-.home-page .map-disclaimer {
-  position: absolute;
-  left: var(--space-3);
-  right: 4.5rem;
-  bottom: max(var(--space-3), env(safe-area-inset-bottom, 0px));
-  z-index: 6;
-  margin: 0;
-  padding: var(--space-3);
-  background: var(--map-chrome-bg);
-  color: var(--ink);
-  border: 1px solid var(--map-chrome-border);
-  font-size: var(--fs-xs);
-  line-height: 1.45;
 }
 
 .home-page .map-empty:not([hidden]),

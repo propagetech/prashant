@@ -15,6 +15,7 @@
   let mapExpandBound = false;
   let showListingById = null;
   let closeActivePopup = function () {};
+  let resetMapView = function () {};
 
   function $(sel, root) {
     return (root || document).querySelector(sel);
@@ -793,6 +794,39 @@
       .join(" ");
   }
 
+  function fitMapToListings(map, listings) {
+    if (!map || !listings || !listings.length) {
+      return;
+    }
+    if (listings.length === 1) {
+      const only = listings[0];
+      const pin = pinOf(only);
+      if (!pin) {
+        return;
+      }
+      const place = parseMapsPlace(only.placeUrl);
+      map.setCenter(pin);
+      map.setZoom((place && place.zoom) || 17);
+      return;
+    }
+    const bounds = new google.maps.LatLngBounds();
+    listings.forEach(function (prop) {
+      const pin = pinOf(prop);
+      if (pin) {
+        bounds.extend(pin);
+      }
+    });
+    if (bounds.isEmpty()) {
+      return;
+    }
+    map.fitBounds(bounds, {
+      top: 96,
+      right: 48,
+      bottom: 88,
+      left: 48,
+    });
+  }
+
   function drawMap(properties, focusId) {
     const empty = $("#map-empty");
     const fallback = $("#map-fallback");
@@ -1025,22 +1059,15 @@
         }
         showListing(prop, pinOf(prop));
       };
+      resetMapView = function () {
+        closeActivePopup();
+        fitMapToListings(map, drawable);
+      };
       if (!focusId && drawable.length > 1 && document.body.classList.contains("home-page")) {
-        const bounds = new google.maps.LatLngBounds();
-        drawable.forEach(function (prop) {
-          const pin = pinOf(prop);
-          if (pin) {
-            bounds.extend(pin);
-          }
-        });
-        map.fitBounds(bounds, {
-          top: 96,
-          right: 48,
-          bottom: 88,
-          left: 48,
-        });
+        fitMapToListings(map, drawable);
       }
       setupMapExpand();
+      setupMapReset();
     });
   }
 
@@ -1153,6 +1180,17 @@
     if (mapInstance && window.google && window.google.maps) {
       google.maps.event.trigger(mapInstance, "resize");
     }
+  }
+
+  function setupMapReset() {
+    const btn = $("#map-reset-btn");
+    if (!btn || btn.dataset.bound === "1") {
+      return;
+    }
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", function () {
+      resetMapView();
+    });
   }
 
   function setupMapExpand() {
@@ -2593,6 +2631,7 @@
     setupTheme();
     setupNav();
     setupListingsPanel();
+    setupMapReset();
     setupConsent();
     if (hasAnalyticsConsent()) {
       bootSite();
