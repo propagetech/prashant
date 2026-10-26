@@ -1,0 +1,7 @@
+# Repo-only files (notes, tooling, old builds): never part of the site
+/backend/* / 301
+/docs/* / 301
+/tools/* / 301
+/.gitignore / 301
+/CLAUDE.md / 301
+/README.md / 301
